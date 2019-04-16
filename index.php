@@ -42,6 +42,7 @@ $catsInfoArray = [
     ]
 ];
 
+
 function format_price($price) {
     $result = "";
     $price = ceil($price);
@@ -54,6 +55,7 @@ function format_price($price) {
     $result .= " ₽";
     return $result;
 }
+
 
 $user_name = 'Александр'; // укажите здесь ваше имя
 ?>
@@ -134,6 +136,7 @@ $user_name = 'Александр'; // укажите здесь ваше имя
                         <div class="lot__rate">
                             <span class="lot__amount">Стартовая цена</span>
                             <span class="lot__cost"><?=format_price($catsInfo['Цена']);?></span>
+
                         </div>
                         <div class="lot__timer timer">
                             12:23
