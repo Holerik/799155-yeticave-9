@@ -131,6 +131,7 @@ function include_template($name, array $data = []) {
     $result = '';
 
     if (!is_readable($name)) {
+        print(__DIR__.'file '.$name.' not found! ');
         return $result;
     }
 
