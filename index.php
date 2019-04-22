@@ -42,22 +42,9 @@ $catsInfoArray = [
     ]
 ];
 
-
-function format_price($price) {
-    $result = "";
-    $price = ceil($price);
-    if ($price > 1000) {
-        $result = number_format($price, 0, ".", " ");
-    }
-    else {
-        $result = $price;
-    }
-    $result .= " ₽";
-    return $result;
-}
-
-
 $user_name = 'Александр'; // укажите здесь ваше имя
+
+require_once('addfunc.php')
 ?>
 <!DOCTYPE html>
 <html lang="ru">
@@ -138,8 +125,13 @@ $user_name = 'Александр'; // укажите здесь ваше имя
                             <span class="lot__cost"><?=format_price($catsInfo['Цена']);?></span>
 
                         </div>
-                        <div class="lot__timer timer">
-                            12:23
+                        <?php
+                            $time = remained_time();
+                        ?>
+                        <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
+                            <?php 
+                                echo($time[0] . ":" . $time[1]);
+                            ?>
                         </div>
                     </div>
                 </div>
