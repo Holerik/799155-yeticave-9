@@ -22,15 +22,26 @@ SET email ='irina_vlad@mail.ru', name = 'flower11', password = 'gfds13io84t', in
 INSERT INTO users
 SET email ='pavel1278@mail.ru', name = 'pavel1278@mail', password = 'gert54vb12qw', info = 'https://ok.ru/pave157';
 
-INSERT INTO lots
-SET name = 'Беговые лыжи FISCHER RCS Skate Jr', descr = 'Профессиональная гоночная модель от компании FISCHER для юниоров и юных лыжников. Модель является третьей гоночной моделью в линейке, обладает гоночной скользящей поверхностью, уступая старшим братьям по весовым показателям.', 
-img_url = 'img/fisher_rcs.jpg',  price = '8000', rate_step = '100', cat_id = '1', autor_id = '1';
-INSERT INTO lots
-SET name = 'Ботинки лыжные ATOMIC Pro Skate Prolink', descr = 'Отличная модель для активных лыжников и амбициозных лыжников, предпочитающих передвижение коньковым ходом.',
-img_url = 'img/atomic_pro.jpg',  price = '4000', rate_step = '100', cat_id = '3', autor_id = '1';
-INSERT INTO lots
-SET name = 'Палатка Trek Planet Alaska 3', descr = 'Трехместная двухслойная камуфляжная палатка Alaska 3 имеет удобный тамбур для вещей.', 
-img_url = 'img/alaska_3.jpg', price = '2000', rate_step = '50', cat_id = '6', autor_id = '2';
+
+INSERT INTO lots 
+SET name = '2014 Rossignol District Snowboard', descr = 'Многоцелевые доски Rossignol категории Фристайл очень прочные для амплитудных приземлений и имеют более широкую стойку с новейшей джиббинговой технологией и изогнутыми кантами Magne-Traction. ',
+ img_url = 'img/lot-1.jpg', price = 10999, rate_step = '500', cat_id = '1', autor_id = '1';
+INSERT INTO lots 
+SET name = 'DC Ply Mens 2016/2017 Snowboard', descr = 'Популярный сноуборд Ply по ощущениям немного напоминает скейтборд.',
+ img_url = 'img/lot-2.jpg', price = 159999, rate_step = '1000', cat_id = '1', autor_id = '1';
+INSERT INTO lots 
+SET name = 'Крепления Union Contact Pro 2015 года размер L/XL', descr = 'Эти крепления ежегодно проверяет на прочность один из самых титулованных бэккантри-райдеров - австриец Gigi Rüf.',
+ img_url = 'img/lot-3.jpg', price = 8000, rate_step = '200', cat_id = '2', autor_id = '1';
+INSERT INTO lots 
+SET name = 'Ботинки для сноуборда DC Mutiny Charocal', descr = 'Прогрессивный дизайн в классическом силуэте - ботинки DC Mutiny созданы для комфортного катания и высокой производительности.',
+ img_url = 'img/lot-4.jpg', price = 10999, rate_step = '500', cat_id = '3', autor_id = '2';
+INSERT INTO lots 
+SET name = 'Куртка для сноуборда DC Mutiny Charocal', descr = 'Куртка подходит для сноубординга (сноуборда) и активного отдыха. Куртка утепленная.',
+ img_url = 'img/lot-5.jpg', price = 7500, rate_step = '100', cat_id = '4', autor_id = '2';
+INSERT INTO lots 
+SET name = 'Маска Oakley Canopy', descr = 'Сноубордическая маска. Технология вентиляции O-Flow Arch и прослойка из микрофлиса.',
+ img_url = 'img/lot-6.jpg', price = 5400, rate_step = '100', cat_id = '6', autor_id = '3';
+ 
 
 INSERT INTO rates
 SET price = '6000', user_id = '3', lot_id = '1';
@@ -47,7 +58,7 @@ WHERE dt_fin IS NULL;
 SELECT l.name, c.name FROM lots l
 JOIN categories c ON l.cat_id = c.key_id;
 
-UPDATE lots SET name = 'Палатка 3-х местная Lanyu 1677' WHERE key_id = 3;
+UPDATE lots SET name = 'Крепления Union Contact Pro Black 2017 года' WHERE key_id = 3;
 UPDATE rates SET dt_add = CURRENT_TIMESTAMP WHERE key_id = 2;
 
 SELECT r.price FROM rates r
