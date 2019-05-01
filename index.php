@@ -198,5 +198,8 @@ require_once('addfunc.php')
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 </body>
+<<<<<<< HEAD
 
+=======
+>>>>>>> c4d1d115cc945ef2b95982c75e7d17cc07659419
 </html>
