@@ -1,4 +1,6 @@
 <?php
+$error = "";
+
 function remained_time() {
     $retVal = [];
     $cur_date = date_parse(date('H:i:s d.m.Y'));

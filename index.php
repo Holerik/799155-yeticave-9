@@ -1,8 +1,11 @@
 <?php
 $is_auth = rand(0, 1);
+/*
 $catsArray = [
     "Доски и лыжи", "Крепления", "Ботинки", "Одежда", "Инструменты", "Разное"
 ];
+
+
 $catsInfoArray = [
     [
         'Название' => '2014 Rossignol District Snowboard',
@@ -41,11 +44,64 @@ $catsInfoArray = [
         'URL картинки' => 'img/lot-6.jpg'
     ]
 ];
+*/
 
 $user_name = 'Александр'; // укажите здесь ваше имя
 
-require_once('addfunc.php')
+require_once('addfunc.php');
+
+$host = 'localhost';
+$user = 'root';
+$dbname = 'yeticave';
+$catsArray = [];
+$catsInfoArray = [];
+
+$link = mysqli_connect($host, $user, "", $dbname);
+if (!$link) {
+    $error = mysqli_connect_error();
+    print("Ошибка MySQL: " . $error);
+}
+else {
+    mysqli_set_charset($link, "utf8");
+    $sql = "SELECT key_id, name, code FROM categories ORDER BY key_id";
+    $result = mysqli_query($link, $sql);
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        foreach ($rows as $row) {
+            $catsArray[] = [
+                            'name' => $row['name'],
+                            'code' => $row['code']
+            ];
+        }
+    }
+    else {
+        $error = mysqli_connect_error();
+        print("Ошибка MySQL: " . $error);
+    }
+    $sql = "SELECT l.name, c.name as cat_name, l.price, img_url FROM lots l" .
+     " JOIN categories c ON l.cat_id = c.key_id" .
+     " WHERE dt_fin IS NULL";
+    $result = mysqli_query($link, $sql);
+    if ($result) {
+         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+         foreach ($rows as $row) {
+            $catsInfoArray[] = [
+                                'Название' => $row['name'],
+                                'Категория' => $row['cat_name'],
+                                'Цена' => $row['price'],
+                                'URL картинки' => $row['img_url']
+            ];
+        }
+    }
+    else {
+        $error = mysqli_connect_error();
+        print("Ошибка MySQL: " . $error);
+        }
+ 
+    mysqli_close($link);
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -99,8 +155,8 @@ require_once('addfunc.php')
         <ul class="promo__list">
             <!--заполните этот список из массива категорий-->
             <?php foreach ($catsArray as $cats): ?>
-                <li class="promo__item promo__item--boards">
-                    <a class="promo__link" href="pages/all-lots.html"><?=$cats;?></a>
+                <li class="promo__item promo__item--<?=$cats['code'];?>">
+                    <a class="promo__link" href="pages/all-lots.html"><?=$cats['name'];?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -148,7 +204,7 @@ require_once('addfunc.php')
             <!--заполните этот список из массива категорий-->
             <?php foreach ($catsArray as $cats): ?>
                 <li class="nav__item">
-                    <a href="pages/all-lots.html"><?=$cats;?></a>
+                    <a href="pages/all-lots.html"><?=$cats['name'];?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -198,8 +254,5 @@ require_once('addfunc.php')
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 </body>
-<<<<<<< HEAD
 
-=======
->>>>>>> c4d1d115cc945ef2b95982c75e7d17cc07659419
 </html>
