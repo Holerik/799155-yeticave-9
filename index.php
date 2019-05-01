@@ -1,5 +1,4 @@
 <?php
-
 $is_auth = rand(0, 1);
 $catsArray = [
     "Доски и лыжи", "Крепления", "Ботинки", "Одежда", "Инструменты", "Разное"
@@ -199,5 +198,4 @@ require_once('addfunc.php')
 <script src="flatpickr.js"></script>
 <script src="script.js"></script>
 </body>
-
 </html>
