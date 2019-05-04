@@ -1,8 +1,10 @@
-<main class="container">
-    <div class="error">
-    <header class="promo">
-        <h2 class="promo__title">Ошибка</h2>
-        <p class="promo__text"><?=$error;?></p>
+<main class="error-container">
+    <div class="error-container__main-col">
+    <header class="error-container__header">
+        <h2 class="error-container__header-text">Ошибка</h2>
     </header>
+    <article class="error-container__article">
+        <p class="error-container__article-text"><?=$error;?></p>
+    </article>
     </div>
 </main>
