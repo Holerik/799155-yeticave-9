@@ -4,7 +4,7 @@
             <!--заполните этот список из массива категорий-->
             <?php foreach ($catsArray as $cats): ?>
                 <li class="nav__item">
-                    <a href="../pages/all-lots.html"><?=$cats;?></a>
+                    <a href="../pages/all-lots.html"><?=$cats['name'];?></a>
                 </li>
             <?php endforeach; ?>
         </ul>

@@ -1,0 +1,32 @@
+.error-container {
+    width:500px;
+    height:250px;
+    position: absolute;
+    top:50%;
+    left:50%;
+    margin-top: -125px;
+    margin-left: -250px;
+}
+
+.error-container__main-col {
+    background-color: red;
+}
+
+.error-container__header {
+    border: 2px solid green;
+    padding-top: 10px;
+    padding-left: 10px;
+}
+
+.error-container__header-text {
+    font-size: 14px;
+    color: yellow;
+}
+
+.error-container__article {
+    margin: 10px;
+}
+
+.error-container__article-text {
+    font-size: 18px;
+}
