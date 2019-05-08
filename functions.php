@@ -43,4 +43,18 @@ function get_min_rate($dblink, $lot_id) {
     return $min_rate;
 }
 
+function modify_when_error($err, $field, $modify) {
+    $res = "";
+    if (!empty($field)) {
+      if (isset($err[$field])) {
+        $res = " " . $modify;
+      }
+    }
+    else {
+      if (count($err) > 0)
+        $res = " " . $modify;
+    }
+    return $res;
+}
+
 require_once('helpers.php');
