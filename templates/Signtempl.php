@@ -28,7 +28,7 @@
             <a href="sign-up.php">Регистрация</a>
           </li>
           <li class="user-menu__item">
-            <a href="login.html">Вход</a>
+            <a href="login.php">Вход</a>
           </li>
         </ul>
       </nav>
