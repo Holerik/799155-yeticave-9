@@ -1,32 +1,38 @@
 .error-container {
-    width:500px;
-    height:250px;
-    position: absolute;
-    top:50%;
-    left:50%;
-    margin-top: -125px;
+	width: 500px;
+    height: 400px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+    margin-top: -200px;
     margin-left: -250px;
 }
 
 .error-container__main-col {
-    background-color: red;
+    background-color: #ee878a;
 }
 
 .error-container__header {
-    border: 2px solid green;
+    padding-left: 170px;
     padding-top: 10px;
-    padding-left: 10px;
 }
 
 .error-container__header-text {
-    font-size: 14px;
-    color: yellow;
+    font-size: 30px;
+    color: rgb(255, 60, 0);
 }
 
 .error-container__article {
-    margin: 10px;
+     padding-left: 50px;
+     padding-bottom: 10px;
 }
 
 .error-container__article-text {
-    font-size: 18px;
+    font-size: 30px;
+	color: yellow;
+}
+
+.error-container-text {
+    font-size: 20px;
+	color: yellow;
 }
