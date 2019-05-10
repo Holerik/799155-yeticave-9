@@ -110,10 +110,10 @@
       </div>
       <?php if (count($errors) > 0): ?>
       <div class="form__item error-container__main-col">
-        <span class="error-container__article-text">Пожалуйста, исправьте ошибки в форме.</span>
+        <span class="error-container-text">Пожалуйста, исправьте ошибки в форме.</span>
         <ul>
           <?php foreach($errors as $err => $val):?>
-            <li class="error-container__article-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
+            <li class="error-container-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
           <?php endforeach; ?>
         </ul>
       </div>
