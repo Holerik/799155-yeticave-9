@@ -2,9 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title><?=$title;?></title>
-    <link href="../css/normalize.min.css" rel="stylesheet">
-    <link href="../css/style.css" rel="stylesheet">
+    <title>Ошибка</title>
+    <link href="../css/custom.css" rel="stylesheet">
 </head>
 <body>
 <main class="error-container">
