@@ -49,7 +49,7 @@ CREATE TABLE users (
 	dt_add 		TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	email 		CHAR(128) NOT NULL,
 	name		CHAR(64) NOT NULL,
-	password	CHAR(32) NOT NULL,
+	password	CHAR(255) NOT NULL,
 	avatar_path	CHAR(255),
 	info		CHAR(255) NOT NULL,
 	lot_id		INT,

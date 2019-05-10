@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Ошибка</title>
+    <link href="../css/custom.css" rel="stylesheet">
+</head>
+<body>
 <main class="error-container">
     <div class="error-container__main-col">
     <header class="error-container__header">
@@ -8,3 +16,5 @@
     </article>
     </div>
 </main>
+</body>
+</html>

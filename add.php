@@ -129,7 +129,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         else {
             $error = mysqli_error($link);
-            $add_content = include_template('error.php', ['error' => $error]);
             print("Ошибка MySQL: " . $error);
         }
     }
@@ -141,7 +140,10 @@ if (empty($error)) {
         'lotInfo' => $lot_info,
         'errors' => $errors,
         'dictionary' => $dictionary
-]);
+    ]);
+}
+else {
+    $add_content = include_template('error.php', ['error' => $error]);
 }
 
 print($add_content);

@@ -2,10 +2,9 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Добавление лота</title>
+  <title>Вход</title>
   <link href="../css/normalize.min.css" rel="stylesheet">
   <link href="../css/style.css" rel="stylesheet">
-  <link href="../css/flatpickr.min.css" rel="stylesheet">
   <link href="../css/custom.css" rel="stylesheet">
 </head>
 <body>
@@ -13,30 +12,31 @@
 <div class="page-wrapper">
 
   <header class="main-header">
-  <div class="main-header__container container">
-    <h1 class="visually-hidden">YetiCave</h1>
-    <a class="main-header__logo" href="index.html">
-      <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
-    </a>
-    <!-- Поиск лота -->
-    <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
-      <input type="search" name="search" placeholder="Поиск лота">
-      <input class="main-header__search-btn" type="submit" name="find" value="Найти">
-    </form>
-    <a class="main-header__add-lot button" href="add.php">Добавить лот</a>
-    <nav class="user-menu">
-      <div class="user-menu__logged">
-        <p>#user_name#</p>
-        <a class="user-menu__bets" href="my-bets.html">Мои ставки</a>
-        <a class="user-menu__logout" href="index.php">Выход</a>
-      </div>
-    </nav>
-  </div>
-</header>
+    <div class="main-header__container container">
+      <h1 class="visually-hidden">YetiCave</h1>
+      <a class="main-header__logo" href="index.html">
+        <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
+      </a>
+      <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
+        <input type="search" name="search" placeholder="Поиск лота">
+        <input class="main-header__search-btn" type="submit" name="find" value="Найти">
+      </form>
+      <a class="main-header__add-lot button" href="add.php">Добавить лот</a>
+      <nav class="user-menu">
+        <ul class="user-menu__list">
+          <li class="user-menu__item">
+            <a href="sign-up.php">Регистрация</a>
+          </li>
+          <li class="user-menu__item">
+            <a href="login.php">Вход</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
   <main>
-  <!-- Список категорий товаров -->
-  <nav class="nav">
+    <nav class="nav">
       <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
@@ -45,68 +45,17 @@
         <?php endforeach; ?>
       </ul>
     </nav>
-    <!-- Форма добавления лота -->
-    <form class="form form--add-lot container <?=modify_when_error($errors, "", 'form--invalid');?>" action="add.php" method="post" target="_self" enctype="multipart/form-data"> <!-- form--invalid -->
-      <h2>Добавление лота</h2>
-      <div class="form__container-two">
-        <div class="form__item  <?=modify_when_error($errors, 'lot-name', 'form__item--invalid');?>"> <!-- form__item--invalid -->
-          <label for="lot-name">Наименование <sup>*</sup></label>
-          <input id="lot-name" type="text" name="lot-name" placeholder="Введите наименование лота" value="<?=$lotInfo['lot-name']; ?>">
-          <span class="form__error">Введите наименование лота</span>
-        </div>
-        <!-- Список категорий товаров -->
-        <div class="form__item <?=modify_when_error($errors, 'category', 'form__item--invalid');?>">
-          <label for="category">Категория <sup>*</sup></label>
-          <select id="category" name="category" value="<?=$lotInfo['category']; ?>">
-            <option>Выберите категорию</option>
-            <?php $selected = ""; ?> 
-            <?php foreach ($catsInfo as $cat): ?>
-                <?php if ($cat['name'] == $lotInfo['category']):?>
-                    <?php $selected = ' selected'; ?>
-                <?php else: ?>
-                    <?php $selected = ""; ?>
-                <?php endif; ?> 
-                <option <?=$selected;?>><?=$cat['name'];?></option>
-            <?php endforeach; ?>
-          </select>
-          <span class="form__error">Выберите категорию</span>
-        </div>
+    <form class="form container  <?=modify_when_error($errors, "", 'form--invalid');?>" action="login.php" method="post"> <!-- form--invalid -->
+      <h2>Вход</h2>
+      <div class="form__item <?=modify_when_error($errors, 'email', 'form__item--invalid');?>"> <!-- form__item--invalid -->
+        <label for="email">E-mail <sup>*</sup></label>
+        <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?=$userInfo['email']?>">
+        <span class="form__error">Введите e-mail</span>
       </div>
-      <div class="form__item form__item--wide <?=modify_when_error($errors, 'message', 'form__item--invalid');?>">
-        <label for="message">Описание <sup>*</sup></label>
-        <textarea id="message" name="message" placeholder="Напишите описание лота"><?=$lotInfo['message'];?></textarea>
-        <span class="form__error">Напишите описание лота</span>
-      </div>
-      <div class="form__item form__item--file <?=modify_when_error($errors, 'lot-img', 'form__item--invalid');?>">
-        <label>Изображение <sup>*</sup></label>
-        <div class="form__input-file">
-          <input class="visually-hidden" type="file" id="lot-img" name="lot-img" value="<?=$lotInfo['lot-img'];?>">
-          <label for="lot-img">
-            Добавить
-          </label>
-          <?php if (isset($errors['lot-img'])) :?>
-            <span class="form__error">Выберите файл изображения</span>
-          <?php else:?>  
-            <span class="form__item"><?=$lotInfo['lot-img'];?></span>
-          <?php endif; ?>
-        </div>
-      </div>
-      <div class="form__container-three">
-        <div class="form__item form__item--small <?=modify_when_error($errors, 'lot-rate', 'form__item--invalid');?>">
-          <label for="lot-rate">Начальная цена <sup>*</sup></label>
-          <input id="lot-rate" type="text" name="lot-rate" placeholder="0" value="<?=$lotInfo['lot-rate'];?>">
-          <span class="form__error">Введите начальную цену</span>
-        </div>
-        <div class="form__item form__item--small <?=modify_when_error($errors, 'lot-step', 'form__item--invalid');?>">
-          <label for="lot-step">Шаг ставки <sup>*</sup></label>
-          <input id="lot-step" type="text" name="lot-step" placeholder="0" value="<?=$lotInfo['lot-step']; ?>">
-          <span class="form__error">Введите шаг ставки</span>
-        </div>
-        <div class="form__item <?=modify_when_error($errors, 'lot-date', 'form__item--invalid');?>">
-          <label for="lot-date">Дата окончания торгов <sup>*</sup></label>
-          <input class="form__input-date" id="lot-date" type="text" name="lot-date" placeholder="Введите дату в формате ГГГГ-ММ-ДД" value="<?=$lotInfo['lot-date']; ?>">
-          <span class="form__error">Введите дату завершения торгов</span>
-        </div>
+      <div class="form__item form__item--last <?=modify_when_error($errors, 'password', 'form__item--invalid');?>">
+        <label for="password">Пароль <sup>*</sup></label>
+        <input id="password" type="password" name="password" placeholder="Введите пароль" value="<?=$userInfo['password']?>">
+        <span class="form__error">Введите пароль</span>
       </div>
       <?php if (count($errors) > 0): ?>
       <div class="form__item error-container__main-col">
@@ -118,22 +67,21 @@
         </ul>
       </div>
       <?php endif; ?>
-      <button type="submit" class="button">Добавить лот</button>
+      <button type="submit" class="button">Войти</button>
     </form>
   </main>
 
 </div>
 
 <footer class="main-footer">
-  <!-- Список категорий товаров -->
   <nav class="nav">
-      <ul class="nav__list container">
+    <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
                 <a href="all-lots.html"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
-      </ul>
+    </ul>
   </nav>
   <div class="main-footer__bottom container">
     <div class="main-footer__copyright">
@@ -177,7 +125,5 @@
   </div>
 </footer>
 
-<script src="../flatpickr.js"></script>
-<script src="../script.js"></script>
 </body>
 </html>

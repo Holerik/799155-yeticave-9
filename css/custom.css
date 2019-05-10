@@ -1,6 +1,11 @@
 .error-container {
-	width: 250px;
-	height: 120px;
+	width: 500px;
+    height: 400px;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+    margin-top: -200px;
+    margin-left: -250px;
 }
 
 .error-container__main-col {
@@ -8,25 +13,26 @@
 }
 
 .error-container__header {
-    border: 2px solid green;
-    padding-top: 20px;
-    padding-left: 20px;
+    padding-left: 170px;
+    padding-top: 10px;
 }
 
 .error-container__header-text {
-    font-size: 14px;
-    color: yellow;
+    font-size: 30px;
+    color: rgb(255, 60, 0);
 }
 
 .error-container__article {
-	position: fixed;
-	top: 50%;
-	left: 50%;
-    margin-top: -60px;
-	margin-left: -125px;
+     padding-left: 50px;
+     padding-bottom: 10px;
 }
 
 .error-container__article-text {
-    font-size: 18px;
+    font-size: 30px;
+	color: yellow;
+}
+
+.error-container-text {
+    font-size: 20px;
 	color: yellow;
 }
