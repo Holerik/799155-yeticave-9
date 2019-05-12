@@ -1,6 +1,13 @@
 <?php
 require_once('dbinit.php');
 require_once('functions.php');
+ini_set('session.cookie_lifetime', 3600);
+ini_set('session.gc_maxlifetime', 3600);  
+session_start();
+
+$user_id = 0;
+$user_name = "";
+$is_auth = 0;
 
 $lot_info = [];  //данные полей формы
 $required_fields = ['category', 'message', 'lot-name', 'lot-rate', 'lot-step', 'lot-date', 'lot-img'];
@@ -16,6 +23,16 @@ $dictionary = [
 $errors = [];   //перечень ошибок для полей формы
 $add_content = "";
 
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+    if (isset($_GET['user_id'])) {
+        $user_id = $_GET['user_id']; 
+        $visit_cookie = 'visit_' . $user_id;
+        if (isset($_SESSION[$visit_cookie])) {
+            $is_auth = 1;
+            $user_name = $_SESSION[$visit_cookie];
+        }
+    }
+}
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //Проверка полей на заполненность
     if (isset($_POST['category'])) {
@@ -135,12 +152,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 if (empty($error)) {
-    $add_content = include_template('Addtempl.php', [
-        'catsInfo' => $catsArray,
-        'lotInfo' => $lot_info,
-        'errors' => $errors,
-        'dictionary' => $dictionary
-    ]);
+    if ($is_auth == 1) {
+        $add_content = include_template('Addtempl.php', [
+                    'catsInfo' => $catsArray,
+                    'lotInfo' => $lot_info,
+                    'user_name' => $user_name,
+                    'user_id' => $user_id,
+                    'errors' => $errors,
+                    'dictionary' => $dictionary
+                ]);
+    }
+    else {
+        http_response_code(403);
+    }
 }
 else {
     $add_content = include_template('error.php', ['error' => $error]);

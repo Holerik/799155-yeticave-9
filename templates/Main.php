@@ -25,7 +25,7 @@
                 <div class="lot__info">
                     <span class="lot__category"><?=htmlspecialchars($catsInfo['Категория']);?></span>
 
-                    <h3 class="lot__title"><a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>"><?=htmlspecialchars($catsInfo['Название']);?></a></h3>
+                    <h3 class="lot__title"><a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['Название']);?></a></h3>
 
                     <div class="lot__state">
                         <div class="lot__rate">

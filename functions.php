@@ -57,4 +57,39 @@ function modify_when_error($err, $field, $modify) {
     return $res;
 }
 
+function initcookie($cats)
+{
+    $result = "0:0";
+    foreach ($cats as $cat) {
+        $result .= "-";
+        $result .= $cat['id'] . ":0";
+    }
+    return $result;
+}
+
+function updatecookie($cookie, $cat)
+{
+    $result = "";
+    $tok = ":-";
+    $num = 0;
+    $snum = strtok($cookie, $tok);
+    while ($snum !== false) {
+        $result .= $snum . ":";
+        if ($snum == $cat) {
+            $snum = strtok($tok);
+            $num = $snum + 1;
+        }
+        else {
+            $snum = strtok($tok);
+            $num = $snum;
+        }
+        $result .= $num;
+        $snum = strtok($tok);
+        if ($snum !== false) {
+            $result .= "-";
+        }
+    }
+    return $result;
+}
+
 require_once('helpers.php');

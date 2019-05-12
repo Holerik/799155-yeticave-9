@@ -26,9 +26,9 @@
     <a class="main-header__add-lot button" href="add.php">Добавить лот</a>
     <nav class="user-menu">
       <div class="user-menu__logged">
-        <p>#user_name#</p>
+        <p><?=$user_name;?></p>
         <a class="user-menu__bets" href="my-bets.html">Мои ставки</a>
-        <a class="user-menu__logout" href="index.php">Выход</a>
+        <a class="user-menu__logout" href="logout.php<?="?user_id=" . $user_id?>">Выход</a>
       </div>
     </nav>
   </div>
@@ -110,10 +110,10 @@
       </div>
       <?php if (count($errors) > 0): ?>
       <div class="form__item error-container__main-col">
-        <span class="error-container-text">Пожалуйста, исправьте ошибки в форме.</span>
+        <span class="error-container__article-text">Пожалуйста, исправьте ошибки в форме.</span>
         <ul>
           <?php foreach($errors as $err => $val):?>
-            <li class="error-container-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
+            <li class="error-container__article-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
           <?php endforeach; ?>
         </ul>
       </div>
