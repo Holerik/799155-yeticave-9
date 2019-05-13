@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }    
     else {
         //проверим поля - м.б. этого достаточно для авторзации
-        if (!empty($user_info['password']) && !isset($errors['email'])) {
+        if (!isset($errors['email'])) {
             if (!empty($user_info['name'])) {
                 //ищем в базе id пользователя по name
                 $sql = "SELECT key_id, name FROM users";
@@ -83,11 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 else {
                     $error = mysqli_error($link);
                 }
-                if (empty($error) && $user_id == 0) {
-                    $error = "Пользователя с таким именем не зарегистрировано";
-                }
             }
-            elseif (!empty($user_info['email'])) {
+            if ($user_id == 0 && !empty($user_info['email'])) {
                 //ищем в базе id пользователя по email
                 $sql = "SELECT key_id, email FROM users";
                 $result = mysqli_query($link, $sql);
@@ -102,9 +99,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 }
                 else {
                     $error = mysqli_error($link);
-                }
-                if (empty($error) && $user_id == 0) {
-                    $error = "Пользователя с такой почтой не зарегистрировано";
                 }
             }
         }
