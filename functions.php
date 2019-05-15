@@ -14,19 +14,86 @@ function format_price($price) {
     return $result;
 }
 
-function remained_time() {
+function remained_time($dt_fin) {
+    $hour = 0;
+    $days = 0;
+    $min = 0;
+    $now = time();
+    $fin = strtotime($dt_fin);
     $retVal = [];
-    $cur_date = date_parse(date('H:i:s d.m.Y'));
-    $hour = $cur_date['hour'];
-    $minute = $cur_date['minute'];
-    $maxHour = 24;
-    if ($minute > 0) {
-        $maxHour--;
-        $minute = 60 - $minute;
-    }
-    $hour = $maxHour - $hour;
-    $retVal = [$hour, $minute];
+    if ($fin > $now) { 
+        $diff = $fin - $now;
+        $weeks = $diff / 604800 % 52;
+        $days = $diff / 86400 % 7;
+        $hours = $diff / 3600 % 24;
+        $mins = $diff / 60 % 60;
+        $retVal = [$hours + 24 * $days + 7 * 24 * $weeks, $mins];
+    } 
     return $retVal;
+}
+
+function lot_time_info($dt_add, $dt_fin)
+{
+	$time_info = [ 'info' => "",
+				   'status' => 1	
+			   ];
+    $now = time();
+    $add = strtotime($dt_add);
+    $fin = strtotime($dt_fin);
+    if ($now > $fin) {
+      	$time_info['info'] = "Торги окончены";
+       	$time_info['status'] = 0;
+       	return $time_info;
+    }
+    $weeks = ($now - $add) / 604800 % 52; 
+    $days = ($now - $add) / 86400 % 7 + $weeks * 7;
+    $hour = ($now - $add) / 3600 % 24;
+    $min = ($now - $add) / 60 % 60;
+    if ($days > 2) {
+      	$time_info['info'] = date("d.m.Y в H:i", $add);	
+    }
+    elseif ($days > 1) {
+       	$time_info['info'] = date("вчера, в  H:i", $add);
+    }
+    elseif ($hour > 2) {
+      	$time_info['info'] = date("в H:i", $add);
+    }
+    elseif ($hour > 1) {
+       	$time_info['info'] = date("час назад");
+    }
+    else {
+       	$time_info['info'] = $min . " минут назад";
+    }
+	return $time_info;
+}
+
+function strtest($str, $test)
+{
+	return !(strpos($str, $test) === false);
+}
+
+function lot_alt_descr($name)
+{
+	$result = "Разное";
+	if (strtest($name, "oots") || strtest($name, "отинки")) {
+		$result = "Ботинки";
+	} 
+	elseif (strtest($name, "nowboard") || strtest($name, "ноуборд")) {
+		$result = "Сноуборд";
+	}
+	elseif (strtest($name, "уртка")) {
+		$result = "Куртка";
+	}
+	elseif (strtest($name, "ыжи")) {
+		$result = "Лыжи";
+	}
+	elseif (strtest($name, "аска")) {
+		$result = "Маска";
+	}
+	elseif (strtest($name, "чки")) {
+		$result = "Очки";
+	}
+	return $result;
 }
 
 function get_min_rate($dblink, $lot_id) {
@@ -41,6 +108,13 @@ function get_min_rate($dblink, $lot_id) {
         }
     }
     return $min_rate;
+}
+
+function check_my_rate($dblink, $lot_id, $bet)
+{
+	$rate = get_min_rate($dblink, $lot_id);
+	$result = $bet > $rate;
+	return $result;
 }
 
 function modify_when_error($err, $field, $modify) {
@@ -90,6 +164,18 @@ function updatecookie($cookie, $cat)
         }
     }
     return $result;
+}
+
+function category_name($catsInfo, $cat_id)
+{
+	$result = "";
+	foreach($catsInfo as $cat) {
+		if ($cat['id'] == $cat_id) {
+			$result = $cat['name'];
+			break;
+		}
+	}
+	return $result;
 }
 
 require_once('helpers.php');

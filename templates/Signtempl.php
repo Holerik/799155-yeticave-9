@@ -14,7 +14,7 @@
   <header class="main-header">
     <div class="main-header__container container">
       <h1 class="visually-hidden">YetiCave</h1>
-      <a class="main-header__logo" href="index.html">
+      <a class="main-header__logo" href="index.php">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
       <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
@@ -28,7 +28,7 @@
             <a href="sign-up.php">Регистрация</a>
           </li>
           <li class="user-menu__item">
-            <a href="login.html">Вход</a>
+            <a href="login.php">Вход</a>
           </li>
         </ul>
       </nav>
@@ -40,7 +40,7 @@
       <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.html"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -90,7 +90,7 @@
     <ul class="nav__list container">
       <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.html"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cat['name'];?></a>
             </li>
       <?php endforeach; ?>
     </ul>

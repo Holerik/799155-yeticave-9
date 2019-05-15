@@ -33,7 +33,7 @@ else {
         print("Ошибка MySQL: " . $error);
     }
     if (empty($error)) {
-        $sql = "SELECT l.name, c.name as cat_name, l.price, img_url, l.key_id FROM lots l" .
+        $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
         " JOIN categories c ON l.cat_id = c.key_id";// .
         //" WHERE dt_fin IS NULL";
         $result = mysqli_query($link, $sql);
@@ -45,14 +45,16 @@ else {
                                 'Категория' => $row['cat_name'],
                                 'Цена' => $row['price'],
                                 'URL картинки' => $row['img_url'],
-                                'lot_id' => $row['key_id']
+                                'lot_id' => $row['key_id'],
+                                'cat_id' => $row['cat_id'],
+                                'dt_fin' => $row['dt_fin']
                 ];
             }
         }
         else {
             $error = mysqli_connect_error();
-            $error_content = incude_template('error.php', ['error' => $error]);
-            print("Ошибка MySQL: " . $error);
+            $error_content = include_template('error.php', ['error' => $error]);
+            //print("Ошибка MySQL: " . $error);
             }
     }
 }

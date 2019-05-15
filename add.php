@@ -1,9 +1,10 @@
 <?php
-require_once('dbinit.php');
 require_once('functions.php');
+require_once('dbinit.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
 session_start();
+
 
 $user_id = 0;
 $user_name = "";
@@ -34,6 +35,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
 }
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['user_id'])) {
+        $user_id = $_POST['user_id']; 
+        $visit_cookie = 'visit_' . $user_id;
+        if (isset($_SESSION[$visit_cookie])) {
+            $is_auth = 1;
+            $user_name = $_SESSION[$visit_cookie];
+        }
+    }
     //Проверка полей на заполненность
     if (isset($_POST['category'])) {
         //это плейсхолдер - категория не выбрана

@@ -1,6 +1,6 @@
 <?php
-require_once('dbinit.php');
 require_once('functions.php');
+require_once('dbinit.php');
 
 $user_info = [];
 $errors = [];   //перечень ошибок для полей формы
