@@ -1,12 +1,3 @@
-<?php
-    $cat_name = "";
-    foreach ($catsInfo as $cat) {
-        if ($cat['id'] == $lotInfo['cat_id']) {
-            $cat_name = $cat['name'];
-            break;
-        }
-    }
-?>
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -14,6 +5,7 @@
   <title><?=$lotInfo['name'];?></title>
   <link href="../css/normalize.min.css" rel="stylesheet">
   <link href="../css/style.css" rel="stylesheet">
+  <link href="../css/custom.css" rel="stylesheet">
 </head>
 <body>
 
@@ -22,7 +14,7 @@
   <header class="main-header">
     <div class="main-header__container container">
       <h1 class="visually-hidden">YetiCave</h1>
-      <a class="main-header__logo" href="index.html">
+      <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
       <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
@@ -36,7 +28,7 @@
       <?php if ($is_auth == 1):?>
         <div class="user-menu__logged">
             <p><?=$user_name;?></p>
-            <a class="user-menu__bets" href="../pages/my-bets.html">Мои ставки</a>
+            <a class="user-menu__bets" href="my-bets.php<?="?user_id=" . $user_id?>">Мои ставки</a>
             <a class="user-menu__logout" href="logout.php<?="?user_id=" . $user_id?>">Выход</a>
         </div>
       <?php else: ?>
@@ -60,7 +52,7 @@
       <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.html"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -71,15 +63,16 @@
       <div class="lot-item__content">
         <div class="lot-item__left">
           <div class="lot-item__image">
-            <img src="../<?=$lotInfo['img_url'];?>" width="730" height="548" alt="Сноуборд">
+            <img src="../<?=$lotInfo['img_url'];?>" width="730" height="548" alt="<?=lot_alt_descr($lotInfo['name']);?>">
           </div>
           <p class="lot-item__category">Категория: <span><?=$cat_name?></span></p>
           <p class="lot-item__description"><?=$lotInfo['descr'];?></p>
         </div>
+        
         <div class="lot-item__right">
           <div class="lot-item__state <?=($is_auth == 1)?"":"form__error";?>">
             
-            <?php $time = remained_time(); ?>
+            <?php $time = remained_time($lotInfo['dt_fin']); ?>
             <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
               <?php echo($time[0] . ":" . $time[1]); ?>
             </div>
@@ -90,16 +83,33 @@
                 <span class="lot-item__cost"><?=$lotInfo['price'];?></span>
               </div>
               <div class="lot-item__min-cost">
-                Мин. ставка <span><?=format_price(get_min_rate($dblink, $lotInfo['key_id']))?></span>
+                Мин. ставка <span><?=$min_rate;?></span>
               </div>
             </div>
-            <form class="lot-item__form" action="https://echo.htmlacademy.ru" method="post" autocomplete="off">
-              <p class="lot-item__form-item form__item form__item--invalid">
+            <!-- форма ставки -->
+            <form class="lot-item__form" action="lot.php" method="post" autocomplete="off">
+              <p class="lot-item__form-item form__item <?=modify_when_error($errors, 'cost', 'form__item--invalid');?>">
                 <label for="cost">Ваша ставка</label>
-                <input id="cost" type="text" name="cost" placeholder="12 000">
-                <span class="form__error">Введите наименование лота</span>
+                <input id="cost" type="text" name="cost" placeholder="0" value="<?=$rate['cost'];?>">
+                <span class="form__error">Введите ставку лота</span>
               </p>
-              <button type="submit" class="button">Сделать ставку</button>
+              <p class="form__error">
+                <input name="lot_id" value="<?=$lotInfo['key_id'];?>">
+              </p>
+              <p class="form__error">
+                <input name="user_id" value="<?=$user_id;?>">
+              </p>
+              <button type="submit" class="button">Сделать&nbspставку</button>
+              <?php if (count($errors) > 0): ?>
+              <div class="form__item error-container__main-col">
+                <span class="error-container__article-text">Пожалуйста, исправьте ошибку ставки.</span>
+                <ul>
+                  <?php foreach($errors as $err => $val):?>
+                    <li class="error-container__article-text"><strong><?=$dict[$err];?>:</strong> <?=$val;?></li>
+                  <?php endforeach; ?>
+                </ul>
+              </div>
+              <?php endif; ?>
             </form>
           </div>
           <!--- История ставок
@@ -171,7 +181,7 @@
     <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.html"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
     </ul>
@@ -203,7 +213,7 @@
         <svg width="27" height="27" viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg"><circle stroke="#879296" fill="none" cx="13.5" cy="13.5" r="12.666"/><path fill="#879296" d="M13.92 18.07c.142-.016.278-.074.39-.166.077-.107.118-.237.116-.37 0 0 0-1.13.516-1.296.517-.165 1.208 1.09 1.95 1.58.276.213.624.314.973.28h1.95s.973-.057.525-.837c-.38-.62-.865-1.17-1.432-1.626-1.208-1.1-1.043-.916.41-2.816.886-1.16 1.236-1.86 1.13-2.163-.108-.302-.76-.214-.76-.214h-2.164c-.092-.026-.19-.026-.282 0-.083.058-.15.135-.195.225-.224.57-.49 1.125-.8 1.656-.973 1.61-1.344 1.697-1.51 1.59-.37-.234-.272-.975-.272-1.433 0-1.56.243-2.202-.468-2.377-.32-.075-.647-.108-.974-.098-.604-.052-1.213.01-1.793.186-.243.116-.438.38-.32.4.245.018.474.13.642.31.152.303.225.638.214.975 0 0 .127 1.832-.302 2.056-.43.223-.692-.167-1.55-1.618-.29-.506-.547-1.03-.77-1.57-.038-.09-.098-.17-.174-.233-.1-.065-.214-.108-.332-.128H6.485s-.312 0-.42.137c-.106.135 0 .36 0 .36.87 2 2.022 3.868 3.42 5.543.923.996 2.21 1.573 3.567 1.598z"/></svg>
       </a>
     </div>
-    <a class="main-footer__add-lot button" href="add-lot.html">Добавить лот</a>
+    <a class="main-footer__add-lot button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
     <div class="main-footer__developed-by">
       <span class="visually-hidden">Разработано:</span>
       <a class="logo-academy" href="https://htmlacademy.ru/intensive/php">

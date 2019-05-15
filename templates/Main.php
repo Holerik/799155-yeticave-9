@@ -6,7 +6,7 @@
             <!--заполните этот список из массива категорий-->
             <?php foreach ($catsArray as $cats): ?>
                 <li class="promo__item promo__item--<?=$cats['code'];?>">
-                    <a class="promo__link" href="../pages/all-lots.html"><?=$cats['name'];?></a>
+                    <a class="promo__link" href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cats['name'];?></a>
                 </li>
             <?php endforeach; ?>
         </ul>
@@ -31,10 +31,9 @@
                         <div class="lot__rate">
                             <span class="lot__amount">Стартовая цена</span>
                             <span class="lot__cost"><?=format_price($catsInfo['Цена']);?></span>
-
                         </div>
                         <?php
-                            $time = remained_time();
+                            $time = remained_time($catsInfo['dt_fin']);
                         ?>
                         <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
                             <?php 
