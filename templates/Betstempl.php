@@ -16,9 +16,10 @@
       <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
-      <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
+      <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
+        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
       <a class="main-header__add-lot button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
       <nav class="user-menu">
@@ -36,7 +37,7 @@
       <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cat['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -46,31 +47,33 @@
       <table class="rates__list">
       <?php foreach($betsInfo as $bets): ?>
         <?php $time_info = lot_time_info($bets['dt_add'], $bets['dt_fin']); ?>
-        <tr class="rates__item">
+        <tr class="rates__item <?=($bets['status'] && $bets['fin']) ? 'rates__item--win' : '';?>">
           <td class="rates__info">
             <div class="rates__img">
               <img src="<?=$bets['lot_img'];?>" width="54" height="40" alt="<?=lot_alt_descr($bets['lot_name']);?>">
             </div>
-            <h3 class="rates___title">
+            <div>
+            <h3 class="rates__title">
             	<a href="lot.php?lot_id=<?=$bets['lot_id'];?>&user_id=<?=$bets['user_id'];?>">
             		<?=$bets['lot_name'];?>
             	</a>
             </h3>
             <?php if ($time_info['status'] == 0): ?>
-            	<?php if (check_my_rate($dblink, $bets['lot_id'], $bets['bet'])): ?>
+            	<?php if ($bets['status']): ?>
             		<p><?=$bets['user_info'];?></p>
             	<?php endif; ?>
             <?php endif; ?>
+            </div>
           </td>
           <td class="rates__category">
             <?=category_name($catsInfo, $bets['cat_id']);?>
           </td>
           <td class="rates__timer">
             <?php if ($time_info['status'] == 0): ?>
-               <?php if(check_my_rate($dblink, $bets['lot_id'], $bets['bet'])): ?>
-               	<div class="timer timer---win">Ставка выиграла</div>
+               <?php if($bets['status'] && $bets['fin']): ?>
+               	<div class="timer timer--win">Ставка выиграла</div>
                <?php else: ?>				
-                <div class="timer timer---end">Торги окончены</div>
+                <div class="timer timer--end">Торги окончены</div>
                <?php endif; ?>
             <?php else: ?>
 	            <?php $time = remained_time($bets['dt_fin']); ?>
@@ -98,7 +101,7 @@
     <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cat['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
     </ul>

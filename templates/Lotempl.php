@@ -17,9 +17,10 @@
       <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
-      <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
+      <form class="main-header__search" method="get" action="serch.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
+        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
       <a class="main-header__add-lot button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
 
@@ -52,7 +53,7 @@
       <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cat['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
       </ul>
@@ -72,10 +73,22 @@
         <div class="lot-item__right">
           <div class="lot-item__state <?=($is_auth == 1)?"":"form__error";?>">
             
-            <?php $time = remained_time($lotInfo['dt_fin']); ?>
-            <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
-              <?php echo($time[0] . ":" . $time[1]); ?>
-            </div>
+	        <?php $time_info = lot_time_info($lotInfo['dt_add'], $lotInfo['dt_fin']); ?>
+	        <?php if ($time_info['status'] == 1): ?>
+	            <?php $time = remained_time($lotInfo['dt_fin']); ?>
+            	<div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
+              		<?php echo($time[0] . ":" . $time[1]); ?>
+            	</div>
+            <?php else: ?>
+				<div class="lot__timer timer timer--finishing">
+               <?php if($user_win && ($lotInfo['autor_id'] == $user_id)): ?>
+               	<div class="timer--win">Ставка выиграла</div>
+               <?php else: ?>				
+                <div class="timer--end">Торги окончены</div>
+               <?php endif; ?>
+				
+				</div>
+            <?php endif; ?>
 
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">
@@ -112,63 +125,22 @@
               <?php endif; ?>
             </form>
           </div>
-          <!--- История ставок
+          <!--- История ставок только для владельца лота ---->
+          <?php if ($lotInfo['autor_id'] == $user_id): ?>
           <div class="history">
-            <h3>История ставок (<span>10</span>)</h3>
+            <h3>История ставок (<span><?=count($history);?></span>)</h3>
             <table class="history__list">
+              <?php foreach ($history as $item): ?>	
               <tr class="history__item">
-                <td class="history__name">Иван</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">5 минут назад</td>
+                <td class="history__name"><?=$item['name'];?></td>
+                <td class="history__price"><?=format_price($item['price']);?></td>
+                <?php $time_info = lot_time_info($item['dt_add'], $lotInfo['dt_fin']); ?>
+                <td class="history__time"><?=$time_info['info'];?></td>
               </tr>
-              <tr class="history__item">
-                <td class="history__name">Константин</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">20 минут назад</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Евгений</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">Час назад</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Игорь</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 08:21</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Енакентий</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 13:20</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Семён</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 12:20</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Илья</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 10:20</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Енакентий</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 13:20</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Семён</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 12:20</td>
-              </tr>
-              <tr class="history__item">
-                <td class="history__name">Илья</td>
-                <td class="history__price">10 999 р</td>
-                <td class="history__time">19.03.17 в 10:20</td>
-              </tr>
+              <?php endforeach; ?>
             </table>
           </div>
-          -->
+          <?php endif; ?>
         </div>
       </div>
     </section>
@@ -181,7 +153,7 @@
     <ul class="nav__list container">
         <?php foreach ($catsInfo as $cat): ?> 
             <li class="nav__item">
-                <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
+                <a href="all-lots.php?cat_id=<?=$cat['id'];?>&user_id=<?=$user_id;?>"><?=$cat['name'];?></a>
             </li>
         <?php endforeach; ?>
     </ul>

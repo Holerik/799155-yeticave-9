@@ -1,6 +1,15 @@
 <?php
+//сообщение об ошибке при исполнении кода
 $error = "";
 
+/**
+ * Форматирует цену в рублях,
+ * отделяет точкой тысячи и добавляет в
+ * конец строки символ рубля
+ * @param integer $price Цена в рублях
+ *
+ * @return string Отформатированная строка с ценой
+*/
 function format_price($price) {
     $result = "";
     $price = ceil($price);
@@ -14,6 +23,14 @@ function format_price($price) {
     return $result;
 }
 
+/**
+ * Определяет время, оставшееся
+ * до наступления заданной даты
+ * @param date $dt_fin Дата в будущем
+ *
+ * @return integer array[0] Количество оставшихся дней 
+ *         integer array[1] Количество оставшихся минут
+*/
 function remained_time($dt_fin) {
     $hour = 0;
     $days = 0;
@@ -32,6 +49,13 @@ function remained_time($dt_fin) {
     return $retVal;
 }
 
+/**
+ *  Комментирует период времени прохождения торгов
+ *  @param date $dt_add  Время добавления лота в торги
+ *  @param date $dt_fin  Время окончания торгов по лоту
+ *
+ *  @return string Комментарий хода торгров
+*/
 function lot_time_info($dt_add, $dt_fin)
 {
 	$time_info = [ 'info' => "",
@@ -67,11 +91,26 @@ function lot_time_info($dt_add, $dt_fin)
 	return $time_info;
 }
 
+/**
+ * Тестирует строку на предмет
+ * содержания в ней некоторой строки
+ * @param string $str Исходная строка
+ * @param string $test Искомая строка
+ *
+ * @return bool true, если строка $str
+ * содержит строку $test
+ */
 function strtest($str, $test)
 {
 	return !(strpos($str, $test) === false);
 }
 
+/**
+ * Подбирает синоним для содержимого строки
+ * @param string $name Некоторое содержимое
+ *
+ * @return string Синоним для содержимого
+ */
 function lot_alt_descr($name)
 {
 	$result = "Разное";
@@ -96,6 +135,14 @@ function lot_alt_descr($name)
 	return $result;
 }
 
+/**
+ * Определяет минимально возможную ставку
+ * для участия в торгах
+ * @param resourse $dblink Ресурс открытой БД 
+ * @param integer $lot_id Ключ торгуемого лота
+ * 
+ * @return integer Размер минимальной ставки
+ */
 function get_min_rate($dblink, $lot_id) {
     $min_rate = 0;
     $sql = "SELECT * FROM rates r WHERE r.lot_id = $lot_id";
@@ -110,13 +157,30 @@ function get_min_rate($dblink, $lot_id) {
     return $min_rate;
 }
 
-function check_my_rate($dblink, $lot_id, $bet)
+/**
+ * Проверяет актуальность ставки
+ * @param resourse $dblink Ресурс открытой БД
+ * @param integer $lot_id Ключ торгуемого лота
+ * @param integer $bet тестируемая ставка
+ *
+ * @return bool true, если ставка наибольшая
+ */
+function check_rate($dblink, $lot_id, $bet)
 {
 	$rate = get_min_rate($dblink, $lot_id);
-	$result = $bet > $rate;
+	$result = $bet >= $rate;
 	return $result;
 }
 
+/**
+ * Проверяет наличие ошибки в массиве ошибок
+ * и возвращает модифицирующую строку при наличии ошибки
+ * @param string array $err Ассоциативный массив 
+ * @param string $field Индекс ошибки
+ * @param string $modify Модифицирующая строка
+ *
+ * @return string Модифицирующая строка
+ */
 function modify_when_error($err, $field, $modify) {
     $res = "";
     if (!empty($field)) {
@@ -131,6 +195,12 @@ function modify_when_error($err, $field, $modify) {
     return $res;
 }
 
+/**
+ * Создает строку для инициализации cookie
+ * @param array $cats Список категорий товаров
+ *
+ * @return string Строка для инициализации
+ */
 function initcookie($cats)
 {
     $result = "0:0";
@@ -141,6 +211,13 @@ function initcookie($cats)
     return $result;
 }
 
+/**
+ * Модифицирует строку cookie для заданной категории
+ * @param string $cookie Исходная строка 
+ * @param integer $cat Индекс категории в БД
+ *
+ * @return string Модифицированная строка
+ */
 function updatecookie($cookie, $cat)
 {
     $result = "";
@@ -166,6 +243,14 @@ function updatecookie($cookie, $cat)
     return $result;
 }
 
+/**
+ * Возвращает название категории товаров
+ * по индексу категории
+ * @param array $catsInfo Массив элементов категорий
+ * @param integer $cat_id Индекс категории в БД
+ *
+ * @return string Название категории
+ */
 function category_name($catsInfo, $cat_id)
 {
 	$result = "";
@@ -177,5 +262,3 @@ function category_name($catsInfo, $cat_id)
 	}
 	return $result;
 }
-
-require_once('helpers.php');
