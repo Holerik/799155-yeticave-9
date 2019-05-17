@@ -1,6 +1,6 @@
 <?php
-require_once('functions.php');
 require_once('dbinit.php');
+require_once('functions.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
 session_start();
@@ -21,12 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         }
         $sql = "SELECT r.key_id, r.price, r.lot_id, l.dt_add, img_url, l.name, descr," .
         " dt_fin, cat_id, info  FROM rates r JOIN lots l ON r.lot_id = l.key_id  ".
-        "JOIN users u ON u.key_id = $user_id WHERE r.user_id = $user_id";
+        "JOIN users u ON u.key_id = r.user_id WHERE r.user_id = $user_id";
 
         $result = mysqli_query($link, $sql);
         if ($result) {
         	$rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         	foreach ($rows as $row) {
+                $status = check_rate($link, $row['lot_id'], $row['price']);
+                $now = time();
+                $fin = strtotime($row['dt_fin']);
+                $finish = $now >= $fin;
         		$my_bets[] = [
         			'bet_id' => $row['key_id'],
         			'bet' => $row['price'],
@@ -37,9 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         			'lot_descr' => $row['descr'],
         			'dt_fin' => $row['dt_fin'],
         			'cat_id' => $row['cat_id'],
-        			'user_info' => $row['info']
+                    'user_info' => $row['info'],
+                    'status' => $status,
+                    'fin' => $finish
         		];
         	}
+        }
+        else {
+            $error = mysqli_error($link);
         }
     }
 }
@@ -47,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 if (empty($error)) {
     if ($is_auth == 1) {
         $bets_content = include_template('Betstempl.php', [
-        			'dblink' => $link,
                     'catsInfo' => $catsArray,
                     'betsInfo' => $my_bets,
                     'user_name' => $user_name,

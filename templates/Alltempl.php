@@ -16,9 +16,10 @@
       <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
-      <form class="main-header__search" method="get" action="https://echo.htmlacademy.ru" autocomplete="off">
+      <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
+        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
       <a class="main-header__add-lot button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
       <nav class="user-menu">
@@ -45,7 +46,6 @@
   <main>
     <nav class="nav">
       <ul class="nav__list container">
-
       <?php foreach ($catsArray as $cats): ?>
           <li class="promo__item promo__item--<?=$cats['code'];?>">
              <a class="promo__link" href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cats['name'];?></a>
@@ -88,18 +88,18 @@
       </ul>
       </section>
       <ul class="pagination-list">
-      	<?php 
-			$cur_page = $first_lpp / $max_lpp;
-			$prev_page = ($cur_page > 0) ? $cur_page - 1 : 0;
-			$next_page = ($cur_page < $pages - 1) ? $cur_page + 1 : $pages - 1;
-      	?>
-        <li class="pagination-item pagination-item-prev"><a href="all-lots.php?user_id=<?=$user_id;?>&cat_id=<?=$cat_id;?>&lot_page=<?=$prev_page;?>">Назад</a></li>
-        <?php for ($page = 0; $page < $page_count; $page++):?>
-	        <li class="pagination-item <?php if ($page == $cur_page):?>pagination-item-active<?php endif;?>">
-	        	<a href="all-lots.php?user_id=<?=$user_id;?>&cat_id=<?=$cat_id;?>&lot_page=<?=$page;?>"><?=($page + 1);?></a>
+    	<?php
+    		$lpp = 2;
+    		$next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;
+    		$prev_page = ($lot_page > 1) ? $lot_page - 1 : 1;
+    	?>
+        <li class="pagination-item pagination-item-prev"><a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$prev_page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>">Назад</a></li>
+        <?php for ($page = 1; $page <= $max_page; $page++):?>
+	        <li class="pagination-item <?=($page == $lot_page) ? 'pagination-item-active' : '';?>">
+	        	<a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>"><?=$page;?></a>
 	        </li>
         <?php endfor; ?>
-        <li class="pagination-item pagination-item-next"><a href="all-lots.php?user_id=<?=$user_id;?>&cat_id=<?=$cat_id;?>&lot_page=<?=$next_page;?>">Вперед</a></li>
+        <li class="pagination-item pagination-item-next"><a  href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$next_page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>">Вперед</a></li>
       </ul>
     </div>
   </main>

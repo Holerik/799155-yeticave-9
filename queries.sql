@@ -65,3 +65,6 @@ SELECT r.price FROM rates r
 JOIN lots l ON r.lot_id = l.key_id
 WHERE r.dt_add > '2019-04-27';
 
+CREATE FULLTEXT INDEX cat_ft_search ON categories(NAME);
+
+CREATE FULLTEXT INDEX lot_ft_search ON lots(name, descr);
