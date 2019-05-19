@@ -1,0 +1,14 @@
+{
+    "name": "user/yeticave",
+    "type": "SwiftMailer",
+    "require-dev": {
+        "swiftmailer/swiftmailer": "^6.2"
+    },
+    "authors": [
+        {
+            "name": "Alex",
+            "email": "a_zobnin@mail.ru"
+        }
+    ],
+    "require": {}
+}

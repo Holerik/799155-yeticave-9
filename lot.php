@@ -1,5 +1,4 @@
 <?php
-require_once('functions.php');
 require_once('dbinit.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
@@ -185,15 +184,6 @@ if ($result) {
 else {
 		$error = mysqli_error($link) . " --5";
 	}
-
-if ($user_win > 0) {
-	//обновим информацию о ставке
-	$sql = "UPDATE lots SET winner_id = $user_win WHERE key_id = $lot_id";
-	$result = mysqli_query($link, $sql);
-	if (!result) {
-        $error = mysqli_error($link) . " --6";
-	}
-}
 
 if (empty($error)) {
         $lot_content = include_template('Lotempl.php', [

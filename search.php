@@ -1,7 +1,6 @@
 <?php
 require_once('dbinit.php');
 require_once('pagination.php');
-require_once('functions.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
 session_start();
@@ -12,6 +11,7 @@ $user_name = "";
 $is_auth = 0;
 $to_search = "";
 $search_content = "";
+$max_lots_per_page = 2;
 
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -49,6 +49,7 @@ if (empty($error))
 		if ($lots_count % $max_lots_per_page > 0) {
 			$max_page++;
 		}	    
+		print("---lcount--- " . $lots_count . " ---max--- " . $max_lots_per_page);
 	    $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, descr, img_url, l.key_id, l.dt_fin FROM lots l" .
 	        " JOIN categories c ON l.cat_id = c.key_id" .
 	        " WHERE MATCH(l.name, descr) AGAINST('$to_search' IN BOOLEAN MODE)" .
@@ -65,7 +66,8 @@ if (empty($error))
 			    'lot_id' => $row['key_id'],
 			    'cat_id' => $row['cat_id'],
 		    	'dt_fin' => $row['dt_fin']
-	    		];
+				];
+				print("\n---name-- ". $row['name']);
 		    }
 		    if (empty($catsInfoArray))
 		    {

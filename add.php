@@ -1,5 +1,4 @@
 <?php
-require_once('functions.php');
 require_once('dbinit.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
@@ -43,13 +42,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user_name = $_SESSION[$visit_cookie];
         }
     }
-    //Проверка полей на заполненность
     if (isset($_POST['category'])) {
         //это плейсхолдер - категория не выбрана
         if ($_POST['category'] == 'Выберите категорию')
         $_POST['category'] = "";
     }
     
+    //Проверка полей на заполненность
     foreach ($required_fields as $field) {
         if (isset($_POST[$field])) {
             if (empty($_POST[$field])) {
@@ -155,7 +154,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         else {
             $error = mysqli_error($link);
-            print("Ошибка MySQL: " . $error);
         }
     }
 }
@@ -167,6 +165,7 @@ if (empty($error)) {
                     'lotInfo' => $lot_info,
                     'user_name' => $user_name,
                     'user_id' => $user_id,
+                    'is_auth' => $is_auth,
                     'errors' => $errors,
                     'dictionary' => $dictionary
                 ]);
