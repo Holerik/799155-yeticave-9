@@ -26,10 +26,13 @@ else {
                            'id' => $row['key_id'],
                            'name' => $row['name'],
                            'code' => $row['code']
-           		];
+												];
        	}
    	}
    	else {
    		$error = mysqli_error($link);
    	}
 }
+
+require_once('functions.php');
+require_once('getwinner.php');

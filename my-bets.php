@@ -1,6 +1,5 @@
 <?php
 require_once('dbinit.php');
-require_once('functions.php');
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
 session_start();
@@ -43,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         			'cat_id' => $row['cat_id'],
                     'user_info' => $row['info'],
                     'status' => $status,
-                    'fin' => $finish
+                    'fin' => $finish,
+					'is_auth' => $is_auth
         		];
         	}
         }

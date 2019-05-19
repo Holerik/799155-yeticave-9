@@ -1,5 +1,4 @@
 <?php
-require_once('functions.php');
 require_once('dbinit.php');
 
 $user_info = [];
