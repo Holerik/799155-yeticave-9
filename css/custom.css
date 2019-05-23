@@ -10,6 +10,7 @@
 
 .error-container__main-col {
     background-color: #ee878a;
+	display: block;
 }
 
 .error-container__header {
@@ -28,11 +29,16 @@
 }
 
 .error-container__article-text {
-    font-size: 30px;
+    font-size: 18px;
 	color: yellow;
 }
 
 .error-container-text {
-    font-size: 20px;
+    font-size: 15px;
 	color: yellow;
+}
+
+.form__item .form__item--span {
+    display: block;
+    font-size: 11px;
 }

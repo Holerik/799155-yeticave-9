@@ -16,12 +16,12 @@
   <div class="main-header__container container">
     <h1 class="visually-hidden">YetiCave</h1>
     <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
-      <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
+    <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
     </a>
     <!-- Поиск лота -->
     <form class="main-header__search" method="get" action="search.php" autocomplete="off">
-		<input type="search" name="search" placeholder="Поиск лота">
-		<input class="main-header__search-btn" type="submit" name="find" value="Найти">
+  <input type="search" name="search" placeholder="Поиск лота">
+  <input class="main-header__search-btn" type="submit" name="find" value="Найти">
         <input class="form__error" name="user_id" value="<?=$user_id;?>">
     </form>
     <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
@@ -53,7 +53,11 @@
         <div class="form__item  <?=modify_when_error($errors, 'lot-name', 'form__item--invalid');?>"> <!-- form__item--invalid -->
           <label for="lot-name">Наименование <sup>*</sup></label>
           <input id="lot-name" type="text" name="lot-name" placeholder="Введите наименование лота" value="<?=$lotInfo['lot-name']; ?>">
-          <span class="form__error">Введите наименование лота</span>
+          <?php if (isset($errors['lot-name'])): ?>
+            <span class="form__error"><?=$errors['lot-name'];?></span>
+          <?php else: ?>
+            <span class="form__error">Введите наименование лота</span>
+          <?php endif; ?>
         </div>
         <!-- Список категорий товаров -->
         <div class="form__item <?=modify_when_error($errors, 'category', 'form__item--invalid');?>">
@@ -70,13 +74,21 @@
                 <option <?=$selected;?>><?=$cat['name'];?></option>
             <?php endforeach; ?>
           </select>
-          <span class="form__error">Выберите категорию</span>
+          <?php if (isset($errors['category'])): ?>
+            <span class="form__error"><?=$errors['category'];?></span>
+          <?php else: ?>
+            <span class="form__error">Выберите категорию</span>
+          <?php endif; ?>
         </div>
       </div>
       <div class="form__item form__item--wide <?=modify_when_error($errors, 'message', 'form__item--invalid');?>">
         <label for="message">Описание <sup>*</sup></label>
         <textarea id="message" name="message" placeholder="Напишите описание лота"><?=$lotInfo['message'];?></textarea>
-        <span class="form__error">Напишите описание лота</span>
+        <?php if (isset($errors['message'])): ?>
+	        <span class="form__error"><?=$errors['message'];?></span>
+        <?php else: ?>	
+	        <span class="form__error">Напишите описание лота</span>
+        <?php endif;?>
       </div>
       <div class="form__item form__item--file <?=modify_when_error($errors, 'lot-img', 'form__item--invalid');?>">
         <label>Изображение <sup>*</sup></label>
@@ -86,9 +98,11 @@
             Добавить
           </label>
           <?php if (isset($errors['lot-img'])) :?>
-            <span class="form__error">Выберите файл изображения</span>
-          <?php else:?>  
-            <span class="form__item"><?=$lotInfo['lot-img'];?></span>
+            <span class="form__error"><?=$errors['lot-img'];?></span>
+          <?php elseif (!empty($lotInfo['lot-img'])):?>  
+            <span class="form__item--span"><?=$lotInfo['lot-img'];?></span>
+          <?php else: ?>
+            <span class="form__item--span">Выберите файл изображения</span>
           <?php endif; ?>
         </div>
       </div>
@@ -96,31 +110,33 @@
         <div class="form__item form__item--small <?=modify_when_error($errors, 'lot-rate', 'form__item--invalid');?>">
           <label for="lot-rate">Начальная цена <sup>*</sup></label>
           <input id="lot-rate" type="text" name="lot-rate" placeholder="0" value="<?=$lotInfo['lot-rate'];?>">
-          <span class="form__error">Введите начальную цену</span>
+          <?php if (!isset($errors['lot-rate'])):?>  
+            <span class="form__item">Введите начальную цену</span>
+          <?php else: ?>
+            <span class="form__error"><?=$errors['lot-rate'];?></span>
+          <?php endif; ?>
         </div>
         <div class="form__item form__item--small <?=modify_when_error($errors, 'lot-step', 'form__item--invalid');?>">
           <label for="lot-step">Шаг ставки <sup>*</sup></label>
           <input id="lot-step" type="text" name="lot-step" placeholder="0" value="<?=$lotInfo['lot-step']; ?>">
-          <span class="form__error">Введите шаг ставки</span>
+          <?php if (!isset($errors['lot-step'])):?>
+            <span class="form__item">Введите шаг ставки</span>
+          <?php else: ?>
+            <span class="form__error"><?=$errors['lot-step'];?></span>
+          <?php endif; ?>
         </div>
         <div class="form__item <?=modify_when_error($errors, 'lot-date', 'form__item--invalid');?>">
           <label for="lot-date">Дата окончания торгов <sup>*</sup></label>
           <input class="form__input-date" id="lot-date" type="text" name="lot-date" placeholder="Введите дату в формате ГГГГ-ММ-ДД" value="<?=$lotInfo['lot-date']; ?>">
-          <span class="form__error">Введите дату завершения торгов</span>
+          <?php if (!isset($errors['lot-date'])):?>
+            <span class="form__item">Введите дату завершения торгов</span>
+          <?php else:?>
+            <span class="form__error"><?=$errors['lot-date'];?></span>
+          <?php endif; ?>
         </div>
       </div>
-      <?php if (count($errors) > 0): ?>
-      <div class="form__item error-container__main-col">
-        <span class="error-container__article-text">Пожалуйста, исправьте ошибки в форме.</span>
-        <ul>
-          <?php foreach($errors as $err => $val):?>
-            <li class="error-container__article-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-      <?php endif; ?>
       <p class="form__error">
-            <input name="user_id" value="<?=$user_id;?>">
+        <input name="user_id" value="<?=$user_id;?>">
       </p>
       <button type="submit" class="button">Добавить лот</button>
     </form>

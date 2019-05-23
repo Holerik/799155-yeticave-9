@@ -26,31 +26,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     }
     if (isset($_GET['cat_id'])) {
     	$cat_id = $_GET['cat_id'];
-    }
-}
-
-if (empty($error)) {
-	foreach ($catsInfoArray as $catsInfo) {
-    	$sql = "SELECT COUNT(*) FROM rates r WHERE r.lot_id = " . $catsInfo['lot_id'];
-	    $result = mysqli_query($link, $sql);
-	    if ($result)
-    	{
-	    	$count = 0;
-	    	if ($result) {
-				$rows = mysqli_fetch_row($result);
-				$count = $rows[0];
-				$bets_count[$catsInfo['lot_id']] = $count;
-	    	}
-    		else {
-    			$error = mysqli_error($link);
-    			break;
-	    	}
-	    }
+		if ($is_auth == 1) {
+			//отметимся в куках для категории этого лота
+			$visit_cookie = 'visit_' . $user_id;
+			$path = "/";
+			if (isset($_COOKIE[$visit_cookie])) {
+				$cookie = $_COOKIE[$visit_cookie];
+				$cookie = updatecookie($cookie, $cat_id);
+				$expire = time() + 3600;
+				setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
+			}
+		}
 	}
 }
 
 if (empty($error)) {
-	$sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id";
+	$sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()";
 	$result = mysqli_query($link, $sql);
 	if ($result) {
 		$rows = mysqli_fetch_row($result);
@@ -61,17 +52,18 @@ if (empty($error)) {
 			$max_page++;
 		}	    
 		$sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
-	        " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id " .
+	        " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()" .
+			" ORDER BY l.dt_add DESC" .
     	    " LIMIT $max_lots_per_page OFFSET $offset_page";
 	    $result = mysqli_query($link, $sql);
 	    if ($result) {
 		    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 		    foreach ($rows as $row) {
 			    $catsInfoArray[] = [
-		    	'Название' => $row['name'],
-			    'Категория' => $row['cat_name'],
-		    	'Цена' => $row['price'],
-			    'URL картинки' => $row['img_url'],
+		    	'lot_name' => $row['name'],
+			    'cat_name' => $row['cat_name'],
+		    	'lot_price' => $row['price'],
+			    'lot_img' => $row['img_url'],
 			    'lot_id' => $row['key_id'],
 			    'cat_id' => $row['cat_id'],
 		    	'dt_fin' => $row['dt_fin']
@@ -86,6 +78,24 @@ if (empty($error)) {
 		$error = mysqli_error($link);
 	}
 }
+
+if (empty($error)) {
+	foreach ($catsInfoArray as $catsInfo) {
+		$bets_count[$catsInfo['lot_id']] = 0;
+    	$sql = "SELECT COUNT(*) FROM rates r WHERE r.lot_id = " . $catsInfo['lot_id'];
+	    $result = mysqli_query($link, $sql);
+    	if ($result) {
+			$rows = mysqli_fetch_row($result);
+			$count = $rows[0];
+			$bets_count[$catsInfo['lot_id']] = $count;
+    	}
+   		else {
+   			$error = mysqli_error($link);
+   			break;
+		}
+	}
+}
+
 
 if(empty($error)) {
 	$all_lots_content = include_template('Alltempl.php', [

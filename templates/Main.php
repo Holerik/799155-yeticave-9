@@ -20,17 +20,17 @@
             <?php foreach ($catsInfoArray as $catsInfo): ?>
             <li class="lots__item lot">
                 <div class="lot__image">
-                    <img src="<?=$catsInfo['URL картинки'];?>" width="350" height="260" alt="">
+                    <img src="<?=$catsInfo['lot_img'];?>" width="350" height="260" alt="">
                 </div>
                 <div class="lot__info">
-                    <span class="lot__category"><?=htmlspecialchars($catsInfo['Категория']);?></span>
+                    <span class="lot__category"><?=htmlspecialchars($catsInfo['cat_name']);?></span>
 
-                    <h3 class="lot__title"><a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['Название']);?></a></h3>
+                    <h3 class="lot__title"><a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['lot_name']);?></a></h3>
 
                     <div class="lot__state">
                         <div class="lot__rate">
                             <span class="lot__amount">Стартовая цена</span>
-                            <span class="lot__cost"><?=format_price($catsInfo['Цена']);?></span>
+                            <span class="lot__cost"><?=format_price($catsInfo['lot_price']);?></span>
                         </div>
                         <?php
                             $time = remained_time($catsInfo['dt_fin']);
@@ -45,8 +45,8 @@
             </li>
             <?php endforeach ?>
         </ul>
-    </section>
-    <ul class="pagination-list">
+    </section> 
+    <ul class="pagination-list <?=($max_page > 1) ? '' : 'form__error';?>">
     	<?php
     		$lpp = 6;
     		$next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;

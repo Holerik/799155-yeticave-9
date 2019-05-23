@@ -10,6 +10,8 @@ $min_rate = 0;
 $user_id = 0;
 $user_name = "";
 $is_auth = 0;
+$lot_id = 0;
+$user_id = 0;
 
 $rate_info = ['cost' => 0];  //данные полей формы
 $dictionary = [
@@ -22,27 +24,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $field = 'cost';
     if (isset($_POST[$field])) {
         if (empty($_POST[$field])) {
-            $errors[$field] = 'Ставка равна нулю!';
+            $errors[$field] = 'Ставка не сделана!';
             $rate_info[$field] = 0;
         }
-        else {
-            	$flag = true;
-            	$options = [
-                    'options' => [
-                        'default' => 0,
-                        'min_range' => 1,
-                        'max_range' => 1000000
-                	    ]
-            	];
-            	if (!filter_var($_POST[$field], FILTER_VALIDATE_INT, $options)) {
-                	$errors[$field] = 'Поле не должно содержать символов!';
-	                $flag = false;
-    	        }   
-        	    if ($flag) {
-            	    //обезопасимся от XSS-уязвимости
-	                $rate_info[$field] = htmlspecialchars($_POST[$field]);
-    	        }
-	        }
+    }
+    if (empty($errors[$field])) {
+       	$options = [
+           'options' => [
+	           'default' => 0,
+               'min_range' => 1,
+               'max_range' => 1000000
+       	    ]
+       	];
+    	if (!filter_var($_POST[$field], FILTER_VALIDATE_INT, $options)) {
+               	$errors[$field] = 'Поле не должно содержать символов!';
+    	 }   
+    }
+    if (empty($errors[$field])) {
+   	    //обезопасимся от XSS-уязвимости
+        $rate_info[$field] = htmlspecialchars($_POST[$field]);
     }
     //проверим величину ставки
     if (isset($_POST['lot_id'])) {
@@ -56,23 +56,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 	$sql = "SELECT * FROM lots WHERE key_id = $lot_id";
 	$result = mysqli_query($link, $sql);
 	if ($result) {
-	           $lot_row = mysqli_fetch_assoc($result);
+    	$lot_row = mysqli_fetch_assoc($result);
+	    //проверим время окончания торгов по ставке
+	    $now = time();
+	    $fin = strtotime($lot_row['dt_fin']);
+    	if ($now > $fin) {
+    		$error = "Ставки не принимаются";
+	    }
 	}
 	else {
-			$error = mysqli_error($link) . " --1";
+			$error = mysqli_error($link);
 		}
-
-    //проверим время окончания торгов по ставке
-    $now = time();
-    $fin = strtotime($lot_row['dt_fin']);
-    if ($now > $fin) {
-    	$error = "Ставки не принимаются";
-    }
-
+	$flag = true;
     //узнаем автора лота
     if (isset($_POST['user_id'])) {
     	$row = [];
 	    $user_id = $_POST['user_id'];
+   		$visit_cookie = 'visit_' . $user_id;
+		if (isset($_SESSION[$visit_cookie])) {
+			$user_name = $_SESSION[$visit_cookie];
+   			$is_auth = 1;
+		}
+
         $sql = "SELECT autor_id FROM lots WHERE key_id = $lot_id";
         $result = mysqli_query($link, $sql);
         if ($result) {
@@ -80,20 +85,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($row['autor_id'] == $user_id)
             {
             	$errors['cost'] = 'Автор не может делать ставки!';
+            	$flag = false;
             }
 		}
 		else {
-            $error = mysqli_error($link) . " --2";
+            $error = mysqli_error($link);
+            $flag = false;
 		}
-
-	    $visit_cookie = 'visit_' . $user_id;
-	    if (isset($_SESSION[$visit_cookie])) {
-    	        $user_name = $_SESSION[$visit_cookie];
-        	    $is_auth = 1;
-	    }
     }
 
-    if (count($errors) == 0) {
+    if (isset($errors['cost'])) {
+        $flag = false;
+    }
+
+    if ($flag) {
         //запишем данные ставку лота в базу
         $sql = "INSERT INTO rates (dt_add, price, user_id, lot_id)"
                 . " VALUES (NOW(), ?, ?, ?)";
@@ -104,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $rate_info['rate_id'] = $last_id;
         }
         else {
-            $error = mysqli_error($link) . " --3";
+            $error = mysqli_error($link);
         }
     }
 } //_POST
@@ -118,54 +123,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             $is_auth = 1;
         }
     }
-    if (isset($_GET['lot_id'])) {
+    if ($is_auth == 0) {
+       	http_response_code(404);
+    }
+	if (isset($_GET['lot_id'])) {
         $lot_id = $_GET['lot_id'];  
-        if (empty($error)) {
-            //получим информацию о лоте
-            $sql = "SELECT * FROM lots WHERE key_id = $lot_id";
-            $result = mysqli_query($link, $sql);
-            if ($result) {
-                $lot_row = mysqli_fetch_assoc($result);
-                if (mysqli_num_rows($result) > 0) {
-                    if ($is_auth == 1) {
-                        //отметимся в куках для категории этого лота
-                        //если хозяин лота не его владелец
-                        if ($lot_row['autor_id'] != $user_id) {
-                        	$visit_cookie = 'visit_' . $user_id;
-                        	$path = "/";
-                        	if (isset($_COOKIE[$visit_cookie])) {
-                            	$cookie = $_COOKIE[$visit_cookie];
-                            	$cookie = updatecookie($cookie, $lot_row['cat_id']);
-                            	$expire = time() + 3600;
-                            	setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
-                        	}
-                        }
-                    }
-                    $rate_info['cost'] = get_min_rate($link, $lot_row['key_id']);
-                }
-                else {
-                    http_response_code(404);
-                }
-            }
-            else{
-                $error = mysqli_error($link) . " --4";
-            }
+        $min_rate = get_min_rate($link, $lot_id);
+	    //получим информацию о лоте
+    	$sql = "SELECT * FROM lots WHERE key_id = $lot_id";
+        $result = mysqli_query($link, $sql);
+	    if ($result) {
+			$lot_row = mysqli_fetch_assoc($result);
+        	if (mysqli_num_rows($result) > 0) {
+    	    	$rate_info['cost'] = get_min_rate($link, $lot_row['key_id']);
+	        }
         }
+   	    else {
+    	    $error = mysqli_error($link);
+   		}
     }
 }//_GET
 
 foreach ($catsArray as $cat) {
-        if ($cat['id'] == $lot_row['cat_id']) {
-            $cat_name = $cat['name'];
-            break;
-        }
+	if ($cat['id'] === $lot_row['cat_id']) {
+	    $cat_name = $cat['name'];
+        break;
+    }
 }
 
 //история ставок
 $user_win = 0;
 $history = [];
 
-$sql = "SELECT price, r.dt_add, name, r.user_id FROM rates r JOIN users u ON r.user_id = u.key_id  WHERE r.lot_id = $lot_id";
+$sql = "SELECT price, r.dt_add, name, r.user_id FROM rates r JOIN users u ON r.user_id = u.key_id " .
+		"  WHERE r.lot_id = $lot_id" .
+		" ORDER BY r.dt_add DESC";
 $result = mysqli_query($link, $sql);
 if ($result) {
       $history = mysqli_fetch_all($result, MYSQLI_ASSOC);
@@ -182,7 +174,7 @@ if ($result) {
       }
 }
 else {
-		$error = mysqli_error($link) . " --5";
+		$error = mysqli_error($link);
 	}
 
 if (empty($error)) {
@@ -204,5 +196,6 @@ if (empty($error)) {
 else {
         $lot_content = include_template('error.php', ['error' => $error]);
     }
+
 print($lot_content);
 

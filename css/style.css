@@ -1153,8 +1153,9 @@ input:invalid .form__error{
 
 .rates__info p {
   margin: 0;
-  font-size: 13px;
-  line-height: 13px;
+  margin-left:15px;
+  font-size: 15px;
+  line-height: 15px;
 }
 
 .rates__img {

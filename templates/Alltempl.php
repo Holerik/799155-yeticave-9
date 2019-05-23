@@ -63,18 +63,18 @@
       		<?php if ($catsInfo['cat_id'] == $cat_id): ?>
         	  	  <li class="lots__item lot">
             		<div class="lot__image">
-              			<img src="<?=$catsInfo['URL картинки'];?>" width="350" height="260" alt="Сноуборд">
+              			<img src="<?=$catsInfo['lot_img'];?>" width="350" height="260" alt="Сноуборд">
             		</div>
 
 	            	<div class="lot__info">
-    	          		<span class="lot__category"><?=$catsInfo['Категория'];?></span>
+    	          		<span class="lot__category"><?=$catsInfo['cat_name'];?></span>
         	      		<h3 class="lot__title">
-            	  			<a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['Название']);?></a>
+            	  			<a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['lot_name']);?></a>
               			</h3>
               			<div class="lot__state">
                 			<div class="lot__rate">
 		        				    <span class="lot__amount"><?=$bets_count[$catsInfo['lot_id']];?> ставок</span>
-								        <span class="lot__cost"><?=format_price($catsInfo['Цена']);?></span>
+								        <span class="lot__cost"><?=format_price($catsInfo['lot_price']);?></span>
         	        		</div>
 	                		<?php $time = remained_time($catsInfo['dt_fin']);?>
     	            		<div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
@@ -87,7 +87,7 @@
 	  	<?php endforeach; ?>	
       </ul>
       </section>
-      <ul class="pagination-list">
+      <ul class="pagination-list <?=($max_page > 1) ? '' : 'form__error';?>">
     	<?php
     		$lpp = 2;
     		$next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;
