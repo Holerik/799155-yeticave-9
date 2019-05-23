@@ -2,6 +2,7 @@
 ini_set('session.cookie_lifetime', 3600);
 ini_set('session.gc_maxlifetime', 3600);  
 session_start();
+$user_id = 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['user_id'])) {

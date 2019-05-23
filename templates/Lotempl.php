@@ -79,16 +79,15 @@
             	<div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
               		<?php echo($time[0] . ":" . $time[1]); ?>
             	</div>
-            <?php else: ?>
-				<div class="lot__timer timer timer--finishing">
-               <?php if($user_win && ($lotInfo['autor_id'] == $user_id)): ?>
+          <?php else: ?>
+				    <div class="lot__timer timer timer--finishing">
+                 <?php if($user_win && ($lotInfo['autor_id'] == $user_id)): ?>
                	<div class="timer--win">Ставка выиграла</div>
                <?php else: ?>				
                 <div class="timer--end">Торги окончены</div>
                <?php endif; ?>
-				
-				</div>
-            <?php endif; ?>
+				    </div>
+          <?php endif; ?>
 
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">
@@ -99,12 +98,18 @@
                 Мин. ставка <span><?=$min_rate;?></span>
               </div>
             </div>
+
             <!-- форма ставки -->
-            <form class="lot-item__form" action="lot.php" method="post" autocomplete="off">
+            <?php if ($time_info['status'] == 1): ?>
+            <form class="lot-item__form <?=($is_auth == 1) ? '' : 'form__error';?>" action="lot.php" method="post" autocomplete="off">
               <p class="lot-item__form-item form__item <?=modify_when_error($errors, 'cost', 'form__item--invalid');?>">
                 <label for="cost">Ваша ставка</label>
                 <input id="cost" type="text" name="cost" placeholder="0" value="<?=$rate['cost'];?>">
-                <span class="form__error">Введите ставку лота</span>
+                <?php if (!isset($errors['cost'])):?> 
+                  <span class="form__item">Введите ставку лота</span>
+                <?php else: ?>
+                  <span class="form__error"><?=$errors['cost'];?></span>
+                <?php endif; ?>
               </p>
               <p class="form__error">
                 <input name="lot_id" value="<?=$lotInfo['key_id'];?>">
@@ -113,20 +118,12 @@
                 <input name="user_id" value="<?=$user_id;?>">
               </p>
               <button type="submit" class="button">Сделать&nbspставку</button>
-              <?php if (count($errors) > 0): ?>
-              <div class="form__item error-container__main-col">
-                <span class="error-container__article-text">Пожалуйста, исправьте ошибку ставки.</span>
-                <ul>
-                  <?php foreach($errors as $err => $val):?>
-                    <li class="error-container__article-text"><strong><?=$dict[$err];?>:</strong> <?=$val;?></li>
-                  <?php endforeach; ?>
-                </ul>
-              </div>
-              <?php endif; ?>
             </form>
+            <?php endif; ?>
+
+
           </div>
           <!--- История ставок ---->
-          <?php if (true): ?>
           <div class="history">
             <h3>История ставок (<span><?=count($history);?></span>)</h3>
             <table class="history__list">
@@ -140,7 +137,6 @@
               <?php endforeach; ?>
             </table>
           </div>
-          <?php endif; ?>
         </div>
       </div>
     </section>

@@ -20,6 +20,7 @@ $dictionary = [
     'lot-date' => 'Дата окончания',
     'lot-img' => 'Изображение'
 ];
+
 $errors = [];   //перечень ошибок для полей формы
 $add_content = "";
 
@@ -44,76 +45,76 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if (isset($_POST['category'])) {
         //это плейсхолдер - категория не выбрана
-        if ($_POST['category'] == 'Выберите категорию')
-        $_POST['category'] = "";
+        if ($_POST['category'] == 'Выберите категорию') {
+            $_POST['category'] = "";
+        }
     }
     
     //Проверка полей на заполненность
     foreach ($required_fields as $field) {
-        if (isset($_POST[$field])) {
-            if (empty($_POST[$field])) {
-                $errors[$field] = 'Поле не заполнено!';
-                $lot_info[$field] = "";
-            }
-            else {
-                $flag = true;
-                if ($field == 'lot-rate' || ($field == 'lot-step')) {
-                    $options = [
-                        'options' => [
-                            'default' => 0,
-                            'min_range' => 1,
-                            'max_range' => 1000000
-                        ]
-                    ];
-                    if (!filter_var($_POST[$field], FILTER_VALIDATE_INT, $options)) {
-                        $errors[$field] = 'Поле не должно содержать символов!';
-                        $flag = false;
-                    }   
-                }
-                if ($flag) {
-                    //обезопасимся от XSS-уязвимости
-                    $lot_info[$field] = htmlspecialchars($_POST[$field]);
-                    
-                }
-            }
+        $lot_info[$field] = "";
+        if (!isset($_POST[$field])) {
+	        $errors[$field] = 'Поле отсутствует!';
+            continue;
         }
+        if (empty($_POST[$field])) {
+	        $errors[$field] = 'Поле не заполнено!';
+            continue;
+        }
+        if ($field === 'lot-rate' || ($field === 'lot-step')) {
+            	$options = [
+                     'options' => [
+                     'default' => 0,
+                     'min_range' => 1,
+                     'max_range' => 1000000
+                      ]
+                ];
+        	if (!filter_var($_POST[$field], FILTER_VALIDATE_INT, $options)) {
+                        $errors[$field] = 'Поле не должно содержать символов!';
+                        continue;
+            }   
+        }
+        //обезопасимся от XSS-уязвимости
+        $lot_info[$field] = htmlspecialchars($_POST[$field]);
     }
+
     //обработка графических данных
     if (isset($_FILES['lot-img'])) {
         if (empty($_FILES['lot-img']['name'])) {
             $errors['lot-img'] = 'Не выбран файл изображения';
         }
-        else {
-            $file_path = __DIR__ . '\\uploads\\';
-            $file_name = $_FILES['lot-img']['name'];
-            move_uploaded_file($_FILES['lot-img']['tmp_name'], $file_path . $file_name);
-            //проверка на ожидаемый графический формат
-            $type = "";
-            $ext = "";
-            $finfo = finfo_open(FILEINFO_MIME_TYPE);
-            if ($finfo) {
-                $ftype = finfo_file($finfo, $file_path . $file_name);
-                $pos = strpos($ftype, '/');
-                $type = substr($ftype, 0, $pos);
-                $ext = substr($ftype, $pos + 1);
-                finfo_close($finfo);
-            }
-            else {
-                //Открытие базы данных fileinfo не удалось;
-                $pos = strpos($file_name, '.');
-                $ext = substr($file_name, $pos + 1);
-                $type = 'image';
-            }
-            //замена оригинального имени на случайное
-            $new_file_name = uniqid() . '.' . $ext;
-            if ($type == 'image') {
-                rename($file_path . $file_name, $file_path . $new_file_name);
-                $lot_info['lot-img'] =  "uploads/" . $new_file_name;
-            }
-            else {
-                $errors['lot-img'] = 'Укажите файл с графическими данными';
-            }
+    }
+    if (!isset($errors['lot-img'])) {
+    	$file_path = __DIR__ . '\\uploads\\';
+        $file_name = $_FILES['lot-img']['name'];
+        move_uploaded_file($_FILES['lot-img']['tmp_name'], $file_path . $file_name);
+        //проверка на ожидаемый графический формат
+        $type = "";
+        $ext = "";
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        if ($finfo) {
+            $ftype = finfo_file($finfo, $file_path . $file_name);
+            $pos = strpos($ftype, '/');
+            $type = substr($ftype, 0, $pos);
+            $ext = substr($ftype, $pos + 1);
+            finfo_close($finfo);
         }
+        else {
+            //Открытие базы данных fileinfo не удалось;
+            $pos = strpos($file_name, '.');
+            $ext = substr($file_name, $pos + 1);
+            $type = 'image';
+        }
+        //замена оригинального имени на случайное
+        if ($type === 'image') {
+	        $new_file_name = uniqid() . '.' . $ext;
+            rename($file_path . $file_name, $file_path . $new_file_name);
+            $lot_info['lot-img'] =  "uploads/" . $new_file_name;
+        }
+        else {
+            $errors['lot-img'] = 'Укажите файл с графическими данными';
+        }
+        
     }
     else {
         $errors['lot-img'] = 'Не выбран файл изображения';
@@ -126,18 +127,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     else {
         //дата должна быть новее сегодняшней
-        $now = date_create('now');
-        $lot = date_create_from_format('Y-m-d', $lot_info['lot-date']);
-        $diff = date_diff($now, $lot);
-        $days = date_interval_format($diff, "%r%d");
-        if ($days < 0)  {
+	  	$now = time();
+	  	$lot = strtotime($lot_info['lot-date']);
+	  	if ($lot < $now) {
             $errors['lot-date'] = 'Укажите более новую дату';
         }
     }
     if (count($errors) == 0) {
         $cat_id = 0;
         foreach ($catsArray as $cat) {
-            if ($cat['name'] == $lot_info['category']) {
+            if ($cat['name'] === $lot_info['category']) {
                 $cat_id = $cat['id'];
                 break;
             }
