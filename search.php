@@ -49,40 +49,40 @@ if (empty($error))
 		if ($lots_count % $max_lots_per_page > 0) {
 			$max_page++;
 		}	    
-		print("---lcount--- " . $lots_count . " ---max--- " . $max_lots_per_page);
+	}	
+   	else {
+    		$error = mysqli_error($link) . " --1";
+  	}
+  	if (empty($error)) {
 	    $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, descr, img_url, l.key_id, l.dt_fin FROM lots l" .
 	        " JOIN categories c ON l.cat_id = c.key_id" .
 	        " WHERE MATCH(l.name, descr) AGAINST('$to_search' IN BOOLEAN MODE)" .
+    	    " ORDER BY l.dt_add DESC" .
     	    " LIMIT $max_lots_per_page OFFSET $offset_page";
 	    $result = mysqli_query($link, $sql);
 	    if ($result) {
 		    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
 		    foreach ($rows as $row) {
 			    $catsInfoArray[] = [
-		    	'Название' => $row['name'],
-			    'Категория' => $row['cat_name'],
-		    	'Цена' => $row['price'],
-			    'URL картинки' => $row['img_url'],
+		    	'lot_name' => $row['name'],
+			    'cat_name' => $row['cat_name'],
+		    	'lot_price' => $row['price'],
+			    'lot_img' => $row['img_url'],
 			    'lot_id' => $row['key_id'],
 			    'cat_id' => $row['cat_id'],
 		    	'dt_fin' => $row['dt_fin']
-				];
-				print("\n---name-- ". $row['name']);
-		    }
-		    if (empty($catsInfoArray))
-		    {
-		    	$error = "По Вашему запросу ничего не найдено";
+	    		];
 		    }
 		}
     	else {
     		$error = mysqli_error($link) . " --1";
     	}
 	}
-	else {
-		$error = mysqli_error($link) . " --2";
-	}
 }
 
+if (empty($catsInfoArray)) {
+   	$error = "По Вашему запросу ничего не найдено";
+}
 
 if (empty($error)) {
     $search_content = include_template('Searchtempl.php', [

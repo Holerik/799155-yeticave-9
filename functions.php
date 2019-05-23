@@ -37,7 +37,7 @@ function remained_time($dt_fin) {
     $min = 0;
     $now = time();
     $fin = strtotime($dt_fin);
-    $retVal = [];
+    $retVal = [0, 0];
     if ($fin > $now) { 
         $diff = $fin - $now;
         $weeks = $diff / 604800 % 52;
@@ -145,16 +145,21 @@ function lot_alt_descr($name)
  */
 function get_min_rate($dblink, $lot_id) {
     $min_rate = 0;
-    $sql = "SELECT * FROM rates r WHERE r.lot_id = $lot_id";
+    $step = 0;
+    $sql = "SELECT r.*, l.rate_step  FROM rates r" .
+    " JOIN lots l ON l.key_id = r.lot_id" .
+    " WHERE r.lot_id = $lot_id";
     $result = mysqli_query($dblink, $sql);
     if ($result) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         foreach ($rows as $row) {
-            if ($min_rate < $row['price'])
-            $min_rate = $row['price'];
+            $step = $row['rate_step'];
+            if ($min_rate < $row['price']) {
+                $min_rate = $row['price'];
+            }
         }
     }
-    return $min_rate;
+    return $min_rate + $step;
 }
 
 /**
@@ -241,6 +246,31 @@ function updatecookie($cookie, $cat)
         }
     }
     return $result;
+}
+
+/**
+ * Возвращает количество посещений сайта/категории товара
+ * @param string $cookie Исходная строка 
+ * @param integer $cat Индекс категории в БД
+ * 
+ * @return integer Количестов посещений
+ */
+function infocookie($cookie, $cat) {
+    $tok = ":-";
+    $num = 0;
+    $snum = strtok($cookie, $tok);
+    while ($snum !== false) {
+        if ($snum == $cat) {
+            $snum = strtok($tok);
+            $num = $snum;
+            break;
+        }
+        else {
+            $snum = strtok($tok);
+            $num = $snum;
+        }
+    }
+    return $num;
 }
 
 /**

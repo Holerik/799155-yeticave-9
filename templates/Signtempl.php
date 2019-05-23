@@ -51,34 +51,39 @@
       <div class="form__item <?=modify_when_error($errors, 'email', 'form__item--invalid');?>"> <!-- form__item--invalid -->
         <label for="email">E-mail <sup>*</sup></label>
         <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?=$userInfo['email']?>">
-        <span class="form__error">Введите e-mail</span>
+        <?php if (!isset($errors['email'])):?>
+          <span class="form__item">Введите e-mail</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['email'];?></span>
+        <?php endif; ?>
       </div>
       <div class="form__item <?=modify_when_error($errors, 'password', 'form__item--invalid');?>">
         <label for="password">Пароль <sup>*</sup></label>
         <input id="password" type="password" name="password" placeholder="Введите пароль" value="<?=$userInfo['password']?>">
-        <span class="form__error">Введите пароль</span>
+        <?php if (!isset($errors['password'])):?>
+          <span class="form__item">Введите пароль</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['password'];?></span>
+        <?php endif; ?>
       </div>
       <div class="form__item <?=modify_when_error($errors, 'name', 'form__item--invalid');?>">
         <label for="name">Имя <sup>*</sup></label>
         <input id="name" type="text" name="name" placeholder="Введите имя" value="<?=$userInfo['name']?>">
-        <span class="form__error">Введите имя</span>
+        <?php if (!isset($errors['name'])):?>
+          <span class="form__item">Введите имя</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['name'];?></span>
+        <?php endif; ?>
       </div>
       <div class="form__item <?=modify_when_error($errors, 'message', 'form__item--invalid');?>">
         <label for="message">Контактные данные <sup>*</sup></label>
         <textarea id="message" name="message" placeholder="Напишите как с вами связаться"><?=$userInfo['message'];?></textarea>
-        <span class="form__error">Напишите как с вами связаться</span>
+        <?php if (!isset($errors['message'])):?>
+          <span class="form__item">Напишите, как с вами связаться</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['message'];?></span>
+        <?php endif; ?>
       </div>
-      <!--<span class="form__error form__error--bottom">Пожалуйста, исправьте ошибки в форме.</span>-->
-      <?php if (count($errors) > 0): ?>
-      <div class="form__item error-container__main-col">
-        <span class="error-container-text">Пожалуйста, исправьте ошибки в форме.</span>
-        <ul>
-          <?php foreach($errors as $err => $val):?>
-            <li class="error-container-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-      <?php endif; ?>
       <button type="submit" class="button">Зарегистрироваться</button>
       <a class="text-link" href="login.php">Уже есть аккаунт</a>
     </form>

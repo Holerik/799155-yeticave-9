@@ -1,4 +1,4 @@
 <p>Здравствуйте, <?=$lot['uname'];?></p>" .
-<p>Ваша ставка для лота <a href='http://yeticave/lot.php?lot_id=<?=$lot['key_id'];?>&user_id=0'><?=$lot['lname'];?></a> победила.</p>
+<p>Ваша ставка для лота <a href='http://yetitest/lot.php?lot_id=<?=$lot['key_id'];?>&user_id=0'><?=$lot['lname'];?></a> победила.</p>
 <p>После авторизации перейдите по ссылке <b>Мои ставки</b>чтобы связаться с автором объявления</p>
 <small>Интернет Аукцион 'YetiCave'</small>
