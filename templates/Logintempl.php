@@ -20,7 +20,6 @@
       <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
-        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
       <a class="main-header__add-lot form__error button" href="add.php">Добавить лот</a>
       <nav class="user-menu">
@@ -51,24 +50,29 @@
       <div class="form__item <?=modify_when_error($errors, 'email', 'form__item--invalid');?>"> <!-- form__item--invalid -->
         <label for="email">E-mail <sup>*</sup></label>
         <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?=$userInfo['email']?>">
-        <span class="form__error">Введите e-mail</span>
+        <?php if (!isset($errors['email'])):?>
+          <span class="form__item">Введите e-mail</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['email'];?></span>
+        <?php endif; ?>
       </div>
       <div class="form__item form__item--last <?=modify_when_error($errors, 'password', 'form__item--invalid');?>">
         <label for="password">Пароль <sup>*</sup></label>
         <input id="password" type="password" name="password" placeholder="Введите пароль" value="<?=$userInfo['password']?>">
-        <span class="form__error">Введите пароль</span>
+        <?php if (!isset($errors['password'])):?>
+          <span class="form__item">Введите пароль</span>
+        <?php else:?>
+          <span class="form__error"><?=$errors['password'];?></span>
+        <?php endif; ?>
       </div>
-      <?php if (count($errors) > 0): ?>
-      <div class="form__item error-container__main-col">
-        <span class="error-container-text">Пожалуйста, исправьте ошибки в форме.</span>
-        <ul>
-          <?php foreach($errors as $err => $val):?>
-            <li class="error-container-text"><strong><?=$dictionary[$err];?>:</strong> <?=$val;?></li>
-          <?php endforeach; ?>
-        </ul>
-      </div>
-      <?php endif; ?>
       <button type="submit" class="button">Войти</button>
+    </form>
+    <form class="form container" action="restore.php" method="post">
+    <div class="form__item <?=(isset($errors['password'])?'':'form__error');?>">
+      <label for="forget">Нажмите, чтобы восстановить<sup>*</sup></label>
+      <input id="forget" type="submit" name="forget" value="Восстановить пароль">
+    </div>
+      <input class="form__error" name="email" value="<?=$userInfo['email']?>">
     </form>
   </main>
 

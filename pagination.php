@@ -12,10 +12,10 @@ $max_page = 1;
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['lot_page'])) {
-    	$lot_page = $_GET['lot_page'];
+    	$lot_page = intval($_GET['lot_page']);
     }
     if (isset($_GET['lot_ppage'])) {
-    	$max_lots_per_page = $_GET['lot_ppage'];
+    	$max_lots_per_page = intval($_GET['lot_ppage']);
     }
 }
 

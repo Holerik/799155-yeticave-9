@@ -15,90 +15,110 @@ $bets_count = [];
 $all_lots_content = "";
 $max_lots_per_page = 2;
 
+if (isset($_SESSION['sess_id'])) {
+    $user_id = $_SESSION['sess_id'];
+}
+if (isset($_SESSION['sess_name'])) {
+    $user_name = $_SESSION['sess_name'];
+    $is_auth = 1;
+}
+
+$catsInfoArray[] = [
+    'lot_name' => "",
+    'cat_name' => "",
+    'lot_price' => 0,
+    'lot_img' => "",
+    'lot_id' => 0,
+    'cat_id' => 0,
+    'dt_fin' => 0
+    ];
+
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if (isset($_GET['user_id'])) {
-        $user_id = $_GET['user_id'];
-        $visit_cookie = 'visit_' . $user_id;
-        if (isset($_SESSION[$visit_cookie])) {
-            $user_name = $_SESSION[$visit_cookie];
-            $is_auth = 1;
+    if (isset($_GET['cat_id'])) {
+        $cat_id = intval($_GET['cat_id']);
+        //есть ли такая категория в базе
+        $sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id";
+        $result = $yetiCave->query($sql);
+        if ($result) {
+           $rows = mysqli_fetch_row($result);
+           if ($rows[0] == 0) {
+               header("Location: _404.php");
+           }
+        }
+
+        if ($is_auth == 1) {
+            //отметимся в куках для категории этого лота
+            $visit_cookie = 'visit_' . $user_id;
+            $path = "/";
+            if (isset($_COOKIE[$visit_cookie])) {
+                $cookie = $_COOKIE[$visit_cookie];
+                $cookie = updatecookie($cookie, $cat_id);
+                $expire = time() + 3600;
+                setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
+            }
         }
     }
-    if (isset($_GET['cat_id'])) {
-    	$cat_id = $_GET['cat_id'];
-		if ($is_auth == 1) {
-			//отметимся в куках для категории этого лота
-			$visit_cookie = 'visit_' . $user_id;
-			$path = "/";
-			if (isset($_COOKIE[$visit_cookie])) {
-				$cookie = $_COOKIE[$visit_cookie];
-				$cookie = updatecookie($cookie, $cat_id);
-				$expire = time() + 3600;
-				setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
-			}
-		}
-	}
 }
 
 if (empty($error)) {
-	$sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()";
-	$result = mysqli_query($link, $sql);
-	if ($result) {
-		$rows = mysqli_fetch_row($result);
-		$lots_count = $rows[0];
-		$offset_page = ($lot_page - 1) * $max_lots_per_page;
-		$max_page = floor($lots_count / $max_lots_per_page);
-		if ($lots_count % $max_lots_per_page > 0) {
-			$max_page++;
-		}	    
-		$sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
-	        " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()" .
-			" ORDER BY l.dt_add DESC" .
-    	    " LIMIT $max_lots_per_page OFFSET $offset_page";
-	    $result = mysqli_query($link, $sql);
-	    if ($result) {
-		    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-		    foreach ($rows as $row) {
-			    $catsInfoArray[] = [
-		    	'lot_name' => $row['name'],
-			    'cat_name' => $row['cat_name'],
-		    	'lot_price' => $row['price'],
-			    'lot_img' => $row['img_url'],
-			    'lot_id' => $row['key_id'],
-			    'cat_id' => $row['cat_id'],
-		    	'dt_fin' => $row['dt_fin']
-	    		];
-		    }
-		}
-    	else {
-    		$error = mysqli_error($link);
-    	}
-	}
-	else {
-		$error = mysqli_error($link);
-	}
+    $sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()";
+    $result = $yetiCave->query($sql);
+    if ($result) {
+        $rows = mysqli_fetch_row($result);
+        $lots_count = $rows[0];
+        $offset_page = ($lot_page - 1) * $max_lots_per_page;
+        $max_page = floor($lots_count / $max_lots_per_page);
+        if ($lots_count % $max_lots_per_page > 0) {
+            $max_page++;
+        }   
+        $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
+        " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()" .
+        " ORDER BY l.dt_add DESC" .
+        " LIMIT $max_lots_per_page OFFSET $offset_page";
+        $result = $yetiCave->query($sql);
+        if ($result) {
+            $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            if ($lots_count > 0) {
+                unset($catsInfoArray);
+            }
+            foreach ($rows as $row) {
+                $catsInfoArray[] = [
+                'lot_name' => $row['name'],
+                'cat_name' => $row['cat_name'],
+                'lot_price' => $row['price'],
+                'lot_img' => $row['img_url'],
+                'lot_id' => $row['key_id'],
+                'cat_id' => $row['cat_id'],
+                'dt_fin' => $row['dt_fin']
+                ];
+            }
+        } else {
+            $error = $yetiCave->error();
+        }
+    } else {
+        $error = $yetiCave->error();
+    }
 }
 
 if (empty($error)) {
-	foreach ($catsInfoArray as $catsInfo) {
-		$bets_count[$catsInfo['lot_id']] = 0;
-    	$sql = "SELECT COUNT(*) FROM rates r WHERE r.lot_id = " . $catsInfo['lot_id'];
-	    $result = mysqli_query($link, $sql);
-    	if ($result) {
-			$rows = mysqli_fetch_row($result);
-			$count = $rows[0];
-			$bets_count[$catsInfo['lot_id']] = $count;
-    	}
-   		else {
-   			$error = mysqli_error($link);
-   			break;
-		}
-	}
+    foreach ($catsInfoArray as $catsInfo) {
+        $bets_count[$catsInfo['lot_id']] = 0;
+        $sql = "SELECT COUNT(*) FROM rates r WHERE r.lot_id = " . $catsInfo['lot_id'];
+        $result = $yetiCave->query($sql);
+        if ($result) {
+            $rows = mysqli_fetch_row($result);
+            $count = $rows[0];
+            $bets_count[$catsInfo['lot_id']] = $count;
+        } else {
+            $error = $yetiCave->error();
+            break;
+        }
+    }
 }
 
 
-if(empty($error)) {
-	$all_lots_content = include_template('Alltempl.php', [
+if (empty($error)) {
+    $all_lots_content = include_template('Alltempl.php', [
         'catsArray' => $catsArray,
         'catsInfoArray' => $catsInfoArray,
         'bets_count' => $bets_count,
@@ -106,11 +126,10 @@ if(empty($error)) {
         'user_id' => $user_id,
         'user_name' => $user_name,
         'is_auth' => $is_auth,
-       	'max_page' => $max_page,
-       	'lot_page' => $lot_page
+        'max_page' => $max_page,
+        'lot_page' => $lot_page
     ]);
-} 
-else {
-    $all_lots_content = include_template('error.php', ['error' => $error]);
+} else {
+    header("Location:_404php?hdr=SQL error&msg=" . $error);
 }
 print($all_lots_content);

@@ -29,7 +29,7 @@ CREATE TABLE lots (
 	descr 		TEXT(65535) NOT NULL,
 	img_url		CHAR(255),
 	price		INT NOT NULL,
-	dt_fin		TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	dt_fin		TIMESTAMP NOT NULL,
 	rate_step	INT NOT NULL,
 	cat_id		INT,
 	autor_id	INT,
