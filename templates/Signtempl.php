@@ -20,7 +20,6 @@
       <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
-        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
       <a class="main-header__add-lot form__error button" href="add.php">Добавить лот</a>
       <nav class="user-menu">

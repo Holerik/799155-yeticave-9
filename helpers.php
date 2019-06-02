@@ -105,27 +105,29 @@ function get_noun_plural_form (int $number, string $one, string $two, string $ma
     $mod100 = $number % 100;
 
     switch (true) {
-        case ($mod100 >= 11 && $mod100 <= 20):
-            return $many;
+    case ($mod100 >= 11 && $mod100 <= 20):
+        return $many;
 
-        case ($mod10 > 5):
-            return $many;
+    case ($mod10 > 5):
+        return $many;
 
-        case ($mod10 === 1):
-            return $one;
+    case ($mod10 === 1):
+        return $one;
 
-        case ($mod10 >= 2 && $mod10 <= 4):
-            return $two;
+    case ($mod10 >= 2 && $mod10 <= 4):
+        return $two;
 
-        default:
-            return $many;
+    default:
+        return $many;
     }
 }
 
 /**
  * Подключает шаблон, передает туда данные и возвращает итоговый HTML контент
+ *
  * @param string $name Путь к файлу шаблона относительно папки templates
- * @param array $data Ассоциативный массив с данными для шаблона
+ * @param array  $data Ассоциативный массив с данными для шаблона
+ * 
  * @return string Итоговый HTML
  */
 function include_template($name, array $data = []) {
@@ -146,4 +148,67 @@ function include_template($name, array $data = []) {
     return $result;
 }
 
+/**
+ * Класс для работы с базой MySQLi
+ */
+class MySqliBase
+{
+    private $_link = null;
+    private $_error = null;
+    private $_connect = false;
 
+    public function __construct($host, $user, $password, $dbname) 
+    {
+        $this->_link = mysqli_connect($host, $user, $password, $dbname);
+        if ($this->_link) {
+            mysqli_set_charset($this->_link, "utf8");
+            $this->_connect = true;
+        } else {
+            $this->_error = mysqli_connect_error();
+        }
+    }
+
+    public function error() 
+    {
+        return $this->_error;
+    }
+
+    public function query($sql) 
+    {
+        if ($this->_connect) {
+            unset($this->_error);
+            $res = mysqli_query($this->_link, $sql);
+            if (!$res) {
+                $this->_error = mysqli_error($this->_link);
+            }
+            return $res;
+        }
+        return null;
+    }
+
+    public function ok()
+    {
+        return $this->_connect;
+    }
+
+    public function prepare_stmt($sql, $data = []) 
+    {
+        return db_get_prepare_stmt($this->_link, $sql, $data);
+    }
+
+    public function last_id() 
+    {
+        if ($this->_connect && !isset($this->_error)) {
+            return mysqli_insert_id($this->_link);
+        }
+        return 0;
+    }
+
+    public function escape_str($str)
+    {   
+        if ($this->_connect) {
+            return mysqli_real_escape_string($this->_link, $str);
+        }
+        return $str;
+    }
+}

@@ -13,23 +13,22 @@
   <header class="main-header">
     <div class="main-header__container container">
       <h1 class="visually-hidden">YetiCave</h1>
-      <a class="main-header__logo" href="index.php<?="?user_id=" . $user_id?>">
+      <a class="main-header__logo" href="index.php">
         <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
       <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
-        <input class="form__error" name="user_id" value="<?=$user_id;?>">
       </form>
-      <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
+      <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php">Добавить лот</a>
       <nav class="user-menu">
-    	<?php if ($is_auth == 1):?>
+      <?php if ($is_auth == 1):?>
         <div class="user-menu__logged">
             <p><?=$user_name;?></p>
-            <a class="user-menu__bets" href="my-bets.php<?="?user_id=" . $user_id?>">Мои ставки</a>
-            <a class="user-menu__logout" href="logout.php<?="?user_id=" . $user_id?>">Выход</a>
+            <a class="user-menu__bets" href="my-bets.php">Мои ставки</a>
+            <a class="user-menu__logout" href="logout.php">Выход</a>
         </div>
-    	<?php else: ?>
+        <?php else: ?>
         <ul class="user-menu__list">
             <li class="user-menu__item">
                 <a href="sign-up.php">Регистрация</a>
@@ -38,7 +37,7 @@
                 <a href="login.php">Вход</a>
             </li>
         </ul>
-    	<?php endif; ?>
+        <?php endif; ?>
       </nav>
     </div>
   </header>
@@ -48,9 +47,9 @@
       <ul class="nav__list container">
       <?php foreach ($catsArray as $cats): ?>
           <li class="promo__item promo__item--<?=$cats['code'];?>">
-             <a class="promo__link" href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cats['name'];?></a>
+             <a class="promo__link" href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cats['name'];?></a>
           </li>
-       <?php endforeach; ?>
+      <?php endforeach; ?>
       </ul>
     </nav>
     <div class="container">
@@ -59,47 +58,47 @@
       <h2>Все лоты в категории <span>«<?=category_name($catsArray, $cat_id);?>»</span></h2>
       </div>
       <ul class="lots__list">
-      	<?php foreach ($catsInfoArray as $catsInfo): ?>
-      		<?php if ($catsInfo['cat_id'] == $cat_id): ?>
-        	  	  <li class="lots__item lot">
-            		<div class="lot__image">
-              			<img src="<?=$catsInfo['lot_img'];?>" width="350" height="260" alt="Сноуборд">
-            		</div>
+        <?php foreach ($catsInfoArray as $catsInfo) : ?>
+          <?php if ($catsInfo['cat_id'] == $cat_id) : ?>
+              <li class="lots__item lot">
+                <div class="lot__image">
+                  <img src="<?=$catsInfo['lot_img'];?>" width="350" height="260" alt="Сноуборд">
+                </div>
 
-	            	<div class="lot__info">
-    	          		<span class="lot__category"><?=$catsInfo['cat_name'];?></span>
-        	      		<h3 class="lot__title">
-            	  			<a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>&user_id=<?=$user_id;?>"><?=htmlspecialchars($catsInfo['lot_name']);?></a>
-              			</h3>
-              			<div class="lot__state">
-                			<div class="lot__rate">
-		        				    <span class="lot__amount"><?=$bets_count[$catsInfo['lot_id']];?> ставок</span>
-								        <span class="lot__cost"><?=format_price($catsInfo['lot_price']);?></span>
-        	        		</div>
-	                		<?php $time = remained_time($catsInfo['dt_fin']);?>
-    	            		<div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
-        	            		<?=$time[0] . ":" . $time[1]; ?>
-            	    		</div>
-              			</div>
-            		</div>
-          		  </li>
-			<?php endif; ?>
-	  	<?php endforeach; ?>	
+                <div class="lot__info">
+                    <span class="lot__category"><?=$catsInfo['cat_name'];?></span>
+                    <h3 class="lot__title">
+                      <a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>"><?=htmlspecialchars($catsInfo['lot_name']);?></a>
+                    </h3>
+                    <div class="lot__state">
+                      <div class="lot__rate">
+                        <span class="lot__amount"><?=$bets_count[$catsInfo['lot_id']];?> <?=wordform($bets_count[$catsInfo['lot_id']])?></span>
+                        <span class="lot__cost"><?=format_price($catsInfo['lot_price']);?></span>
+                      </div>
+                      <?php $time = remained_time($catsInfo['dt_fin']);?>
+                      <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
+                        <?=$time[0] . ":" . $time[1]; ?>
+                      </div>
+                    </div>
+                  </div>
+                 </li>
+        <?php endif; ?>
+      <?php endforeach; ?>
       </ul>
       </section>
       <ul class="pagination-list <?=($max_page > 1) ? '' : 'form__error';?>">
-    	<?php
-    		$lpp = 2;
-    		$next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;
-    		$prev_page = ($lot_page > 1) ? $lot_page - 1 : 1;
-    	?>
-        <li class="pagination-item pagination-item-prev"><a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$prev_page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>">Назад</a></li>
+        <?php
+          $lpp = 2;
+          $next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;
+          $prev_page = ($lot_page > 1) ? $lot_page - 1 : 1;
+        ?>
+        <li class="pagination-item pagination-item-prev"><a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$prev_page;?>&lot_ppage=<?=$lpp;?>">Назад</a></li>
         <?php for ($page = 1; $page <= $max_page; $page++):?>
-	        <li class="pagination-item <?=($page == $lot_page) ? 'pagination-item-active' : '';?>">
-	        	<a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>"><?=$page;?></a>
-	        </li>
+          <li class="pagination-item <?=($page == $lot_page) ? 'pagination-item-active' : '';?>">
+            <a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$page;?>&lot_ppage=<?=$lpp;?>"><?=$page;?></a>
+          </li>
         <?php endfor; ?>
-        <li class="pagination-item pagination-item-next"><a  href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$next_page;?>&lot_ppage=<?=$lpp;?><?="&user_id=" . $user_id?>">Вперед</a></li>
+        <li class="pagination-item pagination-item-next"><a  href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$next_page;?>&lot_ppage=<?=$lpp;?>">Вперед</a></li>
       </ul>
     </div>
   </main>
@@ -109,11 +108,11 @@
 <footer class="main-footer">
   <nav class="nav">
     <ul class="nav__list container">
-	    <?php foreach ($catsArray as $cats): ?>
-    	    <li class="nav__item">
-        	    <a href="all-lots.php?cat_id=<?=$cats['id'];?>&user_id=<?=$user_id;?>"><?=$cats['name'];?></a>
-            </li>
-    	<?php endforeach; ?>
+      <?php foreach ($catsArray as $cats): ?>
+         <li class="nav__item">
+            <a href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cats['name'];?></a>
+          </li>
+      <?php endforeach; ?>
     </ul>
   </nav>
   <div class="main-footer__bottom container">
@@ -143,7 +142,7 @@
         <svg width="27" height="27" viewBox="0 0 27 27" xmlns="http://www.w3.org/2000/svg"><circle stroke="#879296" fill="none" cx="13.5" cy="13.5" r="12.666"/><path fill="#879296" d="M13.92 18.07c.142-.016.278-.074.39-.166.077-.107.118-.237.116-.37 0 0 0-1.13.516-1.296.517-.165 1.208 1.09 1.95 1.58.276.213.624.314.973.28h1.95s.973-.057.525-.837c-.38-.62-.865-1.17-1.432-1.626-1.208-1.1-1.043-.916.41-2.816.886-1.16 1.236-1.86 1.13-2.163-.108-.302-.76-.214-.76-.214h-2.164c-.092-.026-.19-.026-.282 0-.083.058-.15.135-.195.225-.224.57-.49 1.125-.8 1.656-.973 1.61-1.344 1.697-1.51 1.59-.37-.234-.272-.975-.272-1.433 0-1.56.243-2.202-.468-2.377-.32-.075-.647-.108-.974-.098-.604-.052-1.213.01-1.793.186-.243.116-.438.38-.32.4.245.018.474.13.642.31.152.303.225.638.214.975 0 0 .127 1.832-.302 2.056-.43.223-.692-.167-1.55-1.618-.29-.506-.547-1.03-.77-1.57-.038-.09-.098-.17-.174-.233-.1-.065-.214-.108-.332-.128H6.485s-.312 0-.42.137c-.106.135 0 .36 0 .36.87 2 2.022 3.868 3.42 5.543.923.996 2.21 1.573 3.567 1.598z"/></svg>
       </a>
     </div>
-    <a class="main-footer__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
+    <a class="main-footer__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php">Добавить лот</a>
     <div class="main-footer__developed-by">
       <span class="visually-hidden">Разработано:</span>
       <a class="logo-academy" href="https://htmlacademy.ru/intensive/php">

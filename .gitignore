@@ -9,3 +9,7 @@ Thumbs.db
 vendor
 uploads/*
 !uploads/.gitkeep
+addfunc.php
+Data.php
+templates/error.php
+

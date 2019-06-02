@@ -27,8 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if (empty($_POST[$field])) {
                 $errors[$field] = 'Поле не заполнено!';
                 $user_info[$field] = "";
-            }
-            else {
+            } else {
                 //обезопасимся от XSS-уязвимости
                 $user_info[$field] = htmlspecialchars($_POST[$field]);
             }
@@ -39,33 +38,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if (count($errors) == 0) {
         //ищем в базе id пользователя по email
-        $passwordHash = password_hash($user_info['password'], PASSWORD_DEFAULT);
-        $sql = "SELECT key_id, email, password, name FROM users";
-        $result = mysqli_query($link, $sql);
+        $safe_email = $yetiCave->escape_str($user_info['email']);
+        $passwordHash = "";
+        $sql = "SELECT key_id, email, u.password, u.name FROM users u WHERE email = '$safe_email'";
+        $result = $yetiCave->query($sql);
         if ($result) {
-            $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            foreach ($rows as $row) {
-                if ($row['email'] == $user_info['email']) {
-                    $user_id = $row['key_id'];
-                    $passwordHash = $row['password'];
-                    $user_info['name'] = $row['name'];
-                    break;
-                }
+            if (mysqli_num_rows($result) > 0) {
+                $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+                $user_id = $rows[0]['key_id'];
+                $passwordHash = $rows[0]['password'];
+                $user_info['name'] = $rows[0]['name'];
             }
-        }
-        else {
-            $error = mysqli_error($link);
+        } else {
+            $error = $yetiCave->error();
         }
         if (empty($error) && $user_id == 0) {
-            $error = "Пользователя с такой почтой не зарегистрировано";
-        }
-        else {
+            $errors['email'] = "Пользователя с такой почтой не зарегистрировано";
+        } else {
             if (!password_verify($user_info['password'], $passwordHash)) {
-                $error = "Введен неверный пароль";
+                $errors['password'] = "Введен неверный пароль ";
             }
         }
     }
-    if (empty($error) && $user_id > 0) {
+    if (empty($errors) && $user_id > 0) {
             //если куки есть - увеличиваем счетчик посещений
             //имя куки:  visit . $user_id
             //состав куки: пары цифр, через двоеточие, разделенные запятыми
@@ -75,60 +70,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             //функция updatecookie($cookie, $cat) увеличивает соответствующий 
             //счетчик для заданной куки и категории
             //функция initcookie($category) возврашает строку соответствующих пар цифр 
-		$visit_cookie = 'visit_' . $user_id;
+        $visit_cookie = 'visit_' . $user_id;
         $path = "/";
         if (isset($_COOKIE[$visit_cookie])) {
-        	$cookie = $_COOKIE[$visit_cookie];
+            $cookie = $_COOKIE[$visit_cookie];
             $cookie = updatecookie($cookie, 0);
             $expire = time() + 3600;
             setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
-        }
-        else {
-        	//если нет - создаем для него куки
+        } else {
+            //если нет - создаем для него куки
             $cookie = initcookie($catsArray);
             $expire = time() + 3600;
             setcookie($visit_cookie, $cookie, $expire, $path, "", false, true);
         }
         //открываем сессию для пользователя
-        $_SESSION[$visit_cookie] = $user_info['name'];           
+        $_SESSION['sess_id'] = $user_id;
+        $_SESSION['sess_name'] = $user_info['name'];           
         //переходим на главную страницу
-        header("Location: index.php?user_id=" . $user_id);
-	}
-} //POST
-
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    if (isset($_GET['user_id'])) {
-        $user_id = $_GET['user_id'];
-        //ищем в базе данные пользователя по его id
-        $sql = "SELECT key_id, email, name FROM users";
-        $result = mysqli_query($link, $sql);
-        if ($result) {
-            $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            foreach ($rows as $row) {
-                if ($row['key_id'] == $user_id) {
-                    $user_info['key_id'] = $row['key_id'];
-                    $user_info['email'] = $row['email'];
-                    $user_info['name'] = $row['name'];
-                    break;
-                }
-            }
-        }
-        else {
-            $error = mysqli_error($link);
-        }
+        header("Location:index.php");
     }
-} //GET
+} //POST
 
 if (empty($error)) {
     $login_content = include_template('Logintempl.php', [
-    'catsInfo' => $catsArray,
-    'userInfo' => $user_info,
-    'errors' => $errors,
-    'dictionary' => $dictionary
+        'catsInfo' => $catsArray,
+        'userInfo' => $user_info,
+        'user_id' => $user_id,
+        'errors' => $errors,
+        'dictionary' => $dictionary
     ]);
-}
-else {
-    $login_content = include_template('error.php', ['error' => $error]);
+} else {
+    header("Location:_404.php?hdr=SQL error&msg=" . $error);
 }
     
 print($login_content);

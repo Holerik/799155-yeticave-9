@@ -16,16 +16,15 @@
     <form class="main-header__search" method="get" action="search.php" autocomplete="off">
         <input type="search" name="search" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
-        <input class="form__error" name="user_id" value="<?=$user_id;?>">
     </form>
-    <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php<?="?user_id=" . $user_id?>">Добавить лот</a>
+    <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php">Добавить лот</a>
     <nav class="user-menu">
     <!-- здесь должен быть PHP код для показа меню и данных пользователя -->
     <?php if ($is_auth == 1):?>
         <div class="user-menu__logged">
             <p><?=$user_name;?></p>
-            <a class="user-menu__bets" href="my-bets.php<?="?user_id=" . $user_id?>">Мои ставки</a>
-            <a class="user-menu__logout" href="logout.php<?="?user_id=" . $user_id?>">Выход</a>
+            <a class="user-menu__bets" href="my-bets.php">Мои ставки</a>
+            <a class="user-menu__logout" href="logout.php">Выход</a>
         </div>
     <?php else: ?>
         <ul class="user-menu__list">
