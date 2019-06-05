@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Все лоты</title>
+  <title>Замена пароля</title>
   <link href="../css/normalize.min.css" rel="stylesheet">
   <link href="../css/style.css" rel="stylesheet">
 </head>
@@ -14,21 +14,23 @@
     <div class="main-header__container container">
       <h1 class="visually-hidden">YetiCave</h1>
       <a class="main-header__logo" href="index.php">
-        <img src="../img/logo.svg" width="160" height="39" alt="Логотип компании YetiCave">
+        <img src="logo.gif" width="160" height="39" alt="Логотип компании YetiCave">
       </a>
       <form class="main-header__search" method="get" action="search.php" autocomplete="off">
-        <input type="search" name="search" placeholder="Поиск лота">
+        <div>
+        <input class="main-header__search" type="search" name="search" value="Поиск лота" placeholder="Поиск лота">
         <input class="main-header__search-btn" type="submit" name="find" value="Найти">
+        </div>
       </form>
       <a class="main-header__add-lot <?=($is_auth == 1) ? '' : 'form__error';?> button" href="add.php">Добавить лот</a>
       <nav class="user-menu">
-      <?php if ($is_auth == 1):?>
+      <?php if ($is_auth == 1) :?>
         <div class="user-menu__logged">
             <p><?=$user_name;?></p>
             <a class="user-menu__bets" href="my-bets.php">Мои ставки</a>
             <a class="user-menu__logout" href="logout.php">Выход</a>
         </div>
-        <?php else: ?>
+        <?php else :?>
         <ul class="user-menu__list">
             <li class="user-menu__item">
                 <a href="sign-up.php">Регистрация</a>
@@ -43,78 +45,42 @@
   </header>
 
   <main>
-    <nav class="nav">
-      <ul class="nav__list container">
-      <?php foreach ($catsArray as $cats): ?>
-        <li class="nav__item">
-         <a href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cats['name'];?></a>
-        </li>
-      <?php endforeach; ?>
-      </ul>
-    </nav>
-    <div class="container">
-      <section class="lots">
-      <div class="lots__header">
-      <h2>Все лоты в категории <span>«<?=category_name($catsArray, $cat_id);?>»</span></h2>
-      </div>
-      <ul class="lots__list">
-        <?php foreach ($catsInfoArray as $catsInfo) : ?>
-          <?php if ($catsInfo['cat_id'] == $cat_id) : ?>
-              <li class="lots__item lot">
-                <div class="lot__image">
-                  <img src="<?=$catsInfo['lot_img'];?>" width="350" height="260" alt="Сноуборд">
-                </div>
-
-                <div class="lot__info">
-                    <span class="lot__category"><?=$catsInfo['cat_name'];?></span>
-                    <h3 class="lot__title">
-                      <a class="text-link" href="lot.php?lot_id=<?=$catsInfo['lot_id'];?>"><?=htmlspecialchars($catsInfo['lot_name']);?></a>
-                    </h3>
-                    <div class="lot__state">
-                      <div class="lot__rate">
-                        <span class="lot__amount"><?=$bets_count[$catsInfo['lot_id']];?> <?=wordform($bets_count[$catsInfo['lot_id']])?></span>
-                        <span class="lot__cost"><?=format_price($catsInfo['lot_price']);?></span>
-                      </div>
-                      <?php $time = remained_time($catsInfo['dt_fin']);?>
-                      <div class="lot__timer timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
-                        <?=$time[0] . ":" . $time[1]; ?>
-                      </div>
-                    </div>
-                  </div>
-                 </li>
+    <form class="form container" action="change.php" method="post">
+      <h2>Замена пароля</h2>
+      <div class="form__item <?=modify_when_error($errors, 'pwd_old', 'form__item--invalid');?>">
+        <label for="pwd_old">Текущий пароль <sup>*</sup></label>
+        <input id="pwd_old" type="password" name="pwd_old" placeholder="" value="<?=$pwds['pwd_old'];?>">
+        <?php if (!isset($errors['pwd_old'])) :?>
+          <span class="form__item">Введите пароль</span>
+        <?php else :?>
+          <span class="form__error"><?=$errors['pwd_old'];?></span>
         <?php endif; ?>
-      <?php endforeach; ?>
-      </ul>
-      </section>
-      <ul class="pagination-list <?=($max_page > 1) ? '' : 'form__error';?>">
-        <?php
-          $lpp = 2;
-          $next_page = ($lot_page < $max_page) ? $lot_page + 1 : $max_page;
-          $prev_page = ($lot_page > 1) ? $lot_page - 1 : 1;
-        ?>
-        <li class="pagination-item pagination-item-prev"><a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$prev_page;?>&lot_ppage=<?=$lpp;?>">Назад</a></li>
-        <?php for ($page = 1; $page <= $max_page; $page++):?>
-          <li class="pagination-item <?=($page == $lot_page) ? 'pagination-item-active' : '';?>">
-            <a href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$page;?>&lot_ppage=<?=$lpp;?>"><?=$page;?></a>
-          </li>
-        <?php endfor; ?>
-        <li class="pagination-item pagination-item-next"><a  href="all-lots.php?cat_id=<?=$cat_id;?>&lot_page=<?=$next_page;?>&lot_ppage=<?=$lpp;?>">Вперед</a></li>
-      </ul>
-    </div>
+      </div>
+      <div class="form__item <?=modify_when_error($errors, 'pwd_new1', 'form__item--invalid');?>">
+        <label for="pwd_new1">Новый пароль <sup>*</sup></label>
+        <input id="pwd_new1" type="password" name="pwd_new1" placeholder="" value="<?=$pwds['pwd_new1'];?>">
+        <?php if (!isset($errors['pwd_new1'])) :?>
+           <span class="form__item">Введите новый пароль</span>
+        <?php else :?>
+          <span class="form__error"><?=$errors['pwd_new1'];?></span>
+        <?php endif; ?>
+      </div>
+      <div class="form__item form__item--last <?=modify_when_error($errors, 'pwd_new2', 'form__item--invalid');?>">
+        <label for="pwd_new2">Повторите пароль <sup>*</sup></label>
+        <input id="pwd_new2" type="password" name="pwd_new2" placeholder="" value="<?=$pwds['pwd_new2'];?>">
+        <?php if (!isset($errors['pwd_new2'])) :?>
+          <span class="form__item">Введите новый пароль</span>
+        <?php else :?>
+          <span class="form__error"><?=$errors['pwd_new2'];?></span>
+        <?php endif; ?>
+      </div>
+      <button type="submit" class="button">Заменить</button>
+    </form>
   </main>
 
 </div>
 
 <footer class="main-footer">
-  <nav class="nav">
-    <ul class="nav__list container">
-      <?php foreach ($catsArray as $cats): ?>
-         <li class="nav__item">
-            <a href="all-lots.php?cat_id=<?=$cats['id'];?>"><?=$cats['name'];?></a>
-          </li>
-      <?php endforeach; ?>
-    </ul>
-  </nav>
   <div class="main-footer__bottom container">
     <div class="main-footer__copyright">
       <p>© 2019, YetiCave</p>

@@ -27,7 +27,7 @@
           <li class="user-menu__item">
             <a href="sign-up.php">Регистрация</a>
           </li>
-          <li class="user-menu__item">
+          <li class="user-menu__item form__error ">
             <a href="login.php">Вход</a>
           </li>
         </ul>

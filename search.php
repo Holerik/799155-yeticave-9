@@ -11,19 +11,10 @@ $user_name = "";
 $is_auth = 0;
 $to_search = "";
 $search_content = "";
-$max_lots_per_page = 2;
+$max_lots_per_page = 9;
 $safe_search = "";
 
-$catsInfoArray[] = [
-    'lot_name' => "",
-    'cat_name' => "",
-    'lot_price' => 0,
-    'lot_img' => "",
-    'lot_id' => 0,
-    'cat_id' => 0,
-    'dt_fin' => 0,
-    'bets' => 0
-];
+$catsInfoArray = [];
 
 $bets_count = [];
 
@@ -41,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         if (!(strpos($to_search, "Поиск лота") === false)) {
             $error = "Не задана поисковая последовательность";
         } else {
-            $safe_search = $yetiCave->escape_str($to_search);
+            $safe_search = trim($yetiCave->escape_str($to_search));
         }
     }
 }
 
-if (empty($error)) {
+if (empty($error) && !empty($safe_search)) {
     $lots_count = 0;
     //ищем в базе данные по запросу пользователя
     $sql = "SELECT COUNT(*) FROM lots l" .

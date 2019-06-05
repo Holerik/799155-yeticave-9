@@ -13,7 +13,8 @@ $cat_id = 0;
 $bets_count = [];
 
 $all_lots_content = "";
-$max_lots_per_page = 2;
+$max_lots_per_page = 9;
+$lots_count = 0;
 
 if (isset($_SESSION['sess_id'])) {
     $user_id = $_SESSION['sess_id'];
@@ -23,15 +24,7 @@ if (isset($_SESSION['sess_name'])) {
     $is_auth = 1;
 }
 
-$catsInfoArray[] = [
-    'lot_name' => "",
-    'cat_name' => "",
-    'lot_price' => 0,
-    'lot_img' => "",
-    'lot_id' => 0,
-    'cat_id' => 0,
-    'dt_fin' => 0
-    ];
+$catsInfoArray = [];
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['cat_id'])) {
@@ -40,14 +33,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $sql = "SELECT COUNT(*) FROM lots l WHERE l.cat_id = $cat_id";
         $result = $yetiCave->query($sql);
         if ($result) {
-           $rows = mysqli_fetch_row($result);
-           if ($rows[0] == 0) {
-               header("Location: _404.php");
-           }
+            $rows = mysqli_fetch_row($result);
+            if ($rows[0] == 0) {
+                header("Location: _404.php");
+            }
         }
 
         if ($is_auth == 1) {
-            //отметимся в куках для категории этого лота
+            //отметимся в куках для категории этих лотов
             $visit_cookie = 'visit_' . $user_id;
             $path = "/";
             if (isset($_COOKIE[$visit_cookie])) {
@@ -71,18 +64,22 @@ if (empty($error)) {
         if ($lots_count % $max_lots_per_page > 0) {
             $max_page++;
         }   
-        $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
-        " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()" .
-        " ORDER BY l.dt_add DESC" .
-        " LIMIT $max_lots_per_page OFFSET $offset_page";
-        $result = $yetiCave->query($sql);
-        if ($result) {
-            $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            if ($lots_count > 0) {
-                unset($catsInfoArray);
-            }
-            foreach ($rows as $row) {
-                $catsInfoArray[] = [
+    } else {
+        $error = $yetiCave->error();
+        header("Location:_404.php?hdr=SQL error&msg=" . $error);
+    }
+}
+
+if ($lots_count > 0) {
+    $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
+    " JOIN categories c ON l.cat_id = c.key_id  WHERE l.cat_id = $cat_id AND l.dt_fin > NOW()" .
+    " ORDER BY l.dt_add DESC" .
+    " LIMIT $max_lots_per_page OFFSET $offset_page";
+    $result = $yetiCave->query($sql);
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        foreach ($rows as $row) {
+            $catsInfoArray[] = [
                 'lot_name' => $row['name'],
                 'cat_name' => $row['cat_name'],
                 'lot_price' => $row['price'],
@@ -90,15 +87,13 @@ if (empty($error)) {
                 'lot_id' => $row['key_id'],
                 'cat_id' => $row['cat_id'],
                 'dt_fin' => $row['dt_fin']
-                ];
-            }
-        } else {
-            $error = $yetiCave->error();
+            ];
         }
     } else {
         $error = $yetiCave->error();
     }
 }
+
 
 if (empty($error)) {
     foreach ($catsInfoArray as $catsInfo) {
@@ -130,6 +125,6 @@ if (empty($error)) {
         'lot_page' => $lot_page
     ]);
 } else {
-    header("Location:_404php?hdr=SQL error&msg=" . $error);
+    header("Location:_404.php?hdr=SQL error&msg=" . $error);
 }
 print($all_lots_content);

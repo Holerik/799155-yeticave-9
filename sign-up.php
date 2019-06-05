@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } else {
             $error = $yetiCave->error();
+            header("Location:_404.php?hdr=SQL error&msg=" . $error);
         }
 
         $sql = "SELECT * FROM users WHERE email = '$safe_email'";
@@ -70,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
         } else {
             $error = $yetiCave->error();
+            header("Location:_404.php?hdr=SQL error&msg=" . $error);
         }
     }
 
@@ -77,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         //зарегистрируем пользователя и получим его id
         //получим для пароля хэш
         $passwordHash = password_hash($user_info['password'], PASSWORD_DEFAULT);
-        $sql = "INSERT INTO users (safe_email, safe_name, password, safe_info)"
+        $sql = "INSERT INTO users (email, name, password, info)"
                     . " VALUES (?, ?, ?, ?)";
         $stmt = $yetiCave->prepare_stmt($sql, [$safe_email, $safe_name, $passwordHash, $safe_info]);
         $result = mysqli_stmt_execute($stmt);
@@ -85,6 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $user_id = $yetiCave->last_id($link);
         } else {
             $error = $yetiCave->error();
+            header("Location:_404.php?hdr=SQL error&msg=" . $error);
         }
     }
     if ($user_id > 0) {

@@ -138,8 +138,10 @@ function lot_alt_descr($name)
  * Определяет минимально возможную ставку
  * для участия в торгах
  * 
- * @param resourse $db     Открытая БД 
- * @param integer  $lot_id Ключ торгуемого лота
+ * @param MySqliBase $db     Открытая БД 
+ * @param integer    $lot_id Ключ торгуемого лота
+ * @param bool       $flag   Если true - цена лота с учетом шага ставки
+ *                           Если false - текущая цена лота
  * 
  * @return integer Размер минимальной ставки
  */
@@ -171,9 +173,9 @@ function get_min_rate($db, $lot_id, $flag = true) {
 /**
  * Проверяет актуальность ставки
  * 
- * @param resourse $dblink Ресурс открытой БД
- * @param integer  $lot_id Ключ торгуемого лота
- * @param integer  $bet    тестируемая ставка
+ * @param MySqliBase $db     Ресурс открытой БД
+ * @param integer    $lot_id Ключ торгуемого лота
+ * @param integer    $bet    тестируемая ставка
  *
  * @return bool true, если ставка наибольшая
  */
@@ -309,7 +311,7 @@ function category_name($catsInfo, $cat_id)
  * 
  * @param integer $count Количество ставок
  * 
- * @return string Слово СТАВКА
+ * @return string Слово СТАВКА в правильном падеже
  */
 function wordform($count) 
 {

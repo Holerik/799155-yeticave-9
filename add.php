@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 ];
             if (!filter_var($_POST[$field], FILTER_VALIDATE_INT, $options)) {
                         $errors[$field] = 'Поле не должно содержать символов!';
-                        print($field . "-- " . $lot_info[$field] . "  ---\n");
                         continue;
             }   
         }
@@ -109,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $type = 'image';
         }
         //замена оригинального имени на случайное
-        if ($type === 'image') {
+        if ($type === 'image' && ($ext === 'jpg' || $ext === 'png' || $ext === 'jpeg')) {
             $new_file_name = uniqid() . '.' . $ext;
             rename($file_path . $file_name, $file_path . $new_file_name);
             $lot_info['lot-img'] =  "uploads/" . $new_file_name;
