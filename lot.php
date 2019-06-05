@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         header("Location:_404.php?hdr=SQL error&msg=" . $error . " (1)");
     }
     if (isset($_GET['uname'])) {
-        $winner_name = $_GET['uname'];
+        $winner_name = htmlspecialchars($_GET['uname']);
         $sql = "SELECT name FROM users WHERE key_id = $winner_id";
         $result = $yetiCave->query($sql);
         if ($result) {

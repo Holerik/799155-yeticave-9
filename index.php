@@ -8,6 +8,7 @@ $user_name = "";
 $user_id = 0;
 $is_auth = 0;
 $max_lots_per_page = 6;
+$lots_count = 0;
 $pageName = 'YetiCave';
 
 if (isset($_SESSION['sess_id'])) {
@@ -19,29 +20,26 @@ if (isset($_SESSION['sess_name'])) {
     $is_auth = 1;
 }
 
-$catsInfoArray[] = [
-    'lot_name' => "",
-    'cat_name' => "",
-    'lot_price' => 0,
-    'lot_img' => "",
-    'lot_id' => 0,
-    'cat_id' => 0,
-    'dt_fin' => 0
-];
+$catsInfoArray = [];
 
 if (empty($error)) {
     $sql ="SELECT COUNT(*) FROM lots l" .
     " WHERE l.dt_fin > NOW()";
     $result = $yetiCave->query($sql);
+    if ($result) {
+        $rows = mysqli_fetch_row($result);
+        $lots_count = $rows[0];
+        $offset_page = ($lot_page - 1) * $max_lots_per_page;
+        $max_page = floor($lots_count / $max_lots_per_page);
+        if ($lots_count % $max_lots_per_page > 0) {
+            $max_page++;
+        }
+    } else {
+        $error = $yetiCave->error();
+        header("Location:_404php?hdr=SQL error&msg=" . $error);
+    }   
 }
-if ($result) {
-    $rows = mysqli_fetch_row($result);
-    $lots_count = $rows[0];
-    $offset_page = ($lot_page - 1) * $max_lots_per_page;
-    $max_page = floor($lots_count / $max_lots_per_page);
-    if ($lots_count % $max_lots_per_page > 0) {
-        $max_page++;
-    }
+if ($lots_count > 0) {
     $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, img_url, l.key_id, l.dt_fin FROM lots l" .
     " JOIN categories c ON l.cat_id = c.key_id" .
     " WHERE l.dt_fin > NOW()" .
@@ -50,9 +48,6 @@ if ($result) {
     $result = $yetiCave->query($sql);
     if ($result) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        if ($lots_count > 0) {
-            unset($catsInfoArray);
-        }
         foreach ($rows as $row) {
             $catsInfoArray[] = [
                 'lot_name' => $row['name'],
@@ -66,10 +61,10 @@ if ($result) {
         }
     } else {
         $error = $yetiCave->error();
+        header("Location:_404php?hdr=SQL error&msg=" . $error);
     }
-} else {
-    $error = $yetiCave->error();
 }
+
 if (empty($error)) {
     $header_content = include_template('Header.php', [
         'title' => $pageName,

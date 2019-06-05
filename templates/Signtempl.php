@@ -24,7 +24,7 @@
       <a class="main-header__add-lot form__error button" href="add.php">Добавить лот</a>
       <nav class="user-menu">
         <ul class="user-menu__list">
-          <li class="user-menu__item">
+          <li class="user-menu__item form__error">
             <a href="sign-up.php">Регистрация</a>
           </li>
           <li class="user-menu__item">

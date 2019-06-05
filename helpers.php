@@ -23,9 +23,9 @@ function is_date_valid(string $date) : bool {
 /**
  * Создает подготовленное выражение на основе готового SQL запроса и переданных данных
  *
- * @param $link mysqli Ресурс соединения
- * @param $sql string SQL запрос с плейсхолдерами вместо значений
- * @param array $data Данные для вставки на место плейсхолдеров
+ * @param mysqli $link Ресурс соединения
+ * @param string $sql  SQL запрос с плейсхолдерами вместо значений
+ * @param array  $data Данные для вставки на место плейсхолдеров
  *
  * @return mysqli_stmt Подготовленное выражение
  */
@@ -47,11 +47,9 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
 
             if (is_int($value)) {
                 $type = 'i';
-            }
-            else if (is_string($value)) {
+            } else if (is_string($value)) {
                 $type = 's';
-            }
-            else if (is_double($value)) {
+            } else if (is_double($value)) {
                 $type = 'd';
             }
 
@@ -91,14 +89,14 @@ function db_get_prepare_stmt($link, $sql, $data = []) {
  *     );
  * Результат: "Я поставил таймер на 5 минут"
  *
- * @param int $number Число, по которому вычисляем форму множественного числа
+ * @param int    $number Число, по которому вычисляем форму множественного числа
  * @param string $one Форма единственного числа: яблоко, час, минута
  * @param string $two Форма множественного числа для 2, 3, 4: яблока, часа, минуты
  * @param string $many Форма множественного числа для остальных чисел
  *
  * @return string Рассчитанная форма множественнго числа
  */
-function get_noun_plural_form (int $number, string $one, string $two, string $many): string
+function get_noun_plural_form(int $number, string $one, string $two, string $many): string
 {
     $number = (int) $number;
     $mod10 = $number % 10;
@@ -157,6 +155,16 @@ class MySqliBase
     private $_error = null;
     private $_connect = false;
 
+    /**
+     * Конструктор
+     * 
+     * @param string $host     Адрес сервера
+     * @param string $user     Имя пользователя БД
+     * @param string $password Пароль пользователя
+     * @param string $dbname   Имя БД
+     * 
+     * @return Ничего
+     */
     public function __construct($host, $user, $password, $dbname) 
     {
         $this->_link = mysqli_connect($host, $user, $password, $dbname);
@@ -168,11 +176,26 @@ class MySqliBase
         }
     }
 
+    /**
+     * Возвращает описание текущей ошибки БД
+     * 
+     * @return string Описание ошибки
+     */
     public function error() 
     {
-        return $this->_error;
+        if (isset($this->_error)) {
+            return $this->_error;
+        }
+        return "";
     }
 
+    /**
+     * Выполняет запрос к БД
+     * 
+     * @param string $sql Строка запроса
+     * 
+     * @return Ассоциативный массив с результатами
+     */
     public function query($sql) 
     {
         if ($this->_connect) {
@@ -186,16 +209,34 @@ class MySqliBase
         return null;
     }
 
+    /**
+     * Возвращает результат подключения к БД
+     * 
+     * @return bool true - Если подключение установлено
+     */
     public function ok()
     {
         return $this->_connect;
     }
 
+    /**
+     * Подготавливает строку запроса к БД
+     * 
+     * @param string $sql  Строка запроса с плайсхолдерами
+     * @param array  $data Массив с параметрами запроса
+     * 
+     * @return string      Строка запроса
+     */
     public function prepare_stmt($sql, $data = []) 
     {
         return db_get_prepare_stmt($this->_link, $sql, $data);
     }
 
+    /**
+     * Возвращает индекс строки после INSERT
+     * 
+     * @return int Индекс
+     */
     public function last_id() 
     {
         if ($this->_connect && !isset($this->_error)) {
@@ -204,6 +245,13 @@ class MySqliBase
         return 0;
     }
 
+    /**
+     * Возвращает сторку с экранированными символами
+     * 
+     * @param string $str Исходная небезопасная строка
+     * 
+     * @return string     Безопасная строка
+     */
     public function escape_str($str)
     {   
         if ($this->_connect) {
