@@ -26,7 +26,7 @@
 
 
       <nav class="user-menu">
-      <?php if ($is_auth == 1):?>
+      <?php if ($is_auth == 1) :?>
         <div class="user-menu__logged">
             <p><?=$user_name;?></p>
             <a class="user-menu__bets" href="my-bets.php">Мои ставки</a>
@@ -81,9 +81,9 @@
               </div>
             <?php else: ?>
               <div class="lot__timer timer timer--finishing">
-                <?php if($user_win && ($lotInfo['autor_id'] == $user_id)): ?>
+                <?php if($user_win && ($lotInfo['autor_id'] == $user_id)) : ?>
                   <div class="timer--win">Ставка выиграла</div>
-                <?php else: ?>				
+                <?php else: ?>
                   <div class="timer--end">Торги окончены</div>
                 <?php endif; ?>
               </div>
@@ -91,10 +91,10 @@
 
             <div class="lot-item__cost-state">
               <div class="lot-item__rate">
-              <?php if($user_win): ?>
+              <?php if($user_win) : ?>
                 <span class="lot-item__amount">Окончательная цена</span>
                 <span class="lot-item__cost"><?=$history[0]['price'];?></span>
-              <?php else: ?>
+              <?php else : ?>
                 <span class="lot-item__amount">Текущая цена</span>
                 <span class="lot-item__cost"><?=$lotInfo['price'];?></span>
               <?php endif; ?>
@@ -108,13 +108,21 @@
           </div>
           <div class="lot-item__state <?=($is_auth == 1 && ($user_id != $autor_id)) ? '' : 'form__error';?>">
             <!-- форма ставки -->
-            <?php if ($time_info['status'] == 1 && ($user_id != $history[0]['user_id'])) : ?>
-            <form class="lot-item__form <?=($is_auth == 1)?'':'form__error';?>" action="lot.php" method="post" autocomplete="off">
+            <?php $flag = true; 
+            if ($time_info['status'] == 0) {
+                $flag = false;
+            }
+            if (count($history) > 0 && $user_id == $history[0]['user_id']) {
+                $flag = false;
+            }
+            ?>
+            <?php if ($flag == true) : ?>
+            <form class="lot-item__form <?=($is_auth == 1) ? '' : 'form__error';?>" action="lot.php" method="post" autocomplete="off">
               <p class="lot-item__form-item form__item <?=modify_when_error($errors, 'cost', 'form__item--invalid');?>">
                 <label for="cost">Ваша ставка</label>
                 <input id="cost" type="text" name="cost" placeholder="0" value="<?=$rate['cost'];?>">
-                <?php if (!isset($errors['cost'])):?> 
-                  <span class="form__item">Введите ставку лота</span>
+                <?php if (!isset($errors['cost'])) :?> 
+                  <!--<span class="form__item">Введите ставку лота</span>-->
                 <?php else: ?>
                   <span class="form__error"><?=$errors['cost'];?></span>
                 <?php endif; ?>

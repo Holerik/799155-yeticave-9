@@ -18,37 +18,39 @@ if (isset($_SESSION['sess_name'])) {
     $is_auth = 1;
 }
 
-$my_bets[] = [
-    'bet_id' => 0,
-    'bet' => 0,
-    'lot_id' => 0,
-    'dt_add' => 0,
-    'lot_img' => "",
-    'lot_name' => "",
-    'lot_descr' => "",
-    'dt_fin' => 0,
-    'cat_id' => 0,
-    'user_info' => "",
-    'status' => 0,
-    'fin' => false,
-    'is_auth' => 0
-];
-
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if ($user_id > 0) {
-        $sql = "SELECT r.key_id, r.price, r.lot_id, l.dt_add, img_url, l.name, descr," .
+        $sql = "SELECT r.key_id, r.price, r.lot_id, r.dt_add, img_url, l.name, descr," .
         " dt_fin, cat_id, info  FROM rates r JOIN lots l ON r.lot_id = l.key_id  ".
-        "JOIN users u ON u.key_id = r.user_id WHERE r.user_id = $user_id";
+        "JOIN users u ON u.key_id = r.user_id WHERE r.user_id = $user_id" . 
+        " ORDER BY r.dt_add DESC";
 
         $result = $yetiCave->query($sql);
-        if ($result) {
+        if ($result && mysqli_num_rows($result) > 0) {
             $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
-            unset($my_bets);
             foreach ($rows as $row) {
+                //в процессе торгов за лот м.б. несколько ставок подряд
+                //выбираем последнюю
+                $flag = true;
+                foreach ($my_bets as $bet) {
+                    if (isset($bet['lot_id']) && $bet['lot_id'] == $row['lot_id'] ) {
+                        $flag = false;
+                        break;
+                    }
+                }
+                if (!$flag) {
+                    continue;
+                }
                 $status = check_rate($yetiCave, $row['lot_id'], $row['price']);
                 $now = time();
                 $fin = strtotime($row['dt_fin']);
                 $finish = $now >= $fin;
+                //поищем в каталоге 'маленький' файл с изображением
+                $fname = $row['img_url'];
+                str_replace(".", "_small.", $fname);
+                if (file_exists($fname)) {
+                    $row['img_url'] = $fname;
+                }
                 $my_bets[] = [
                     'bet_id' => $row['key_id'],
                     'bet' => $row['price'],
@@ -81,10 +83,10 @@ if (empty($error)) {
                     'is_auth' => $is_auth
         ]);
     } else {
-        header("Location:_404php?hdr=Error 403&msg=Пожалуйста, авторизуйтесь!");
+        header("Location:_404.php?hdr=Error 403&msg=Пожалуйста, авторизуйтесь!");
     }
 } else {
-    header("Location:_404php?hdr=SQL error&msg=" . $error);
+    header("Location:_404.php?hdr=SQL error&msg=" . $error);
 }
 
 print($bets_content);

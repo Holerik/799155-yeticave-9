@@ -19,7 +19,9 @@ $dictionary = [
     'cost' => 'Ставка лота'
 ];
 $errors = [];   //перечень ошибок для полей формы
-$lot_row = [];
+$lot_row = [
+
+];
 
 if (isset($_SESSION['sess_id'])) {
     $user_id = $_SESSION['sess_id'];
@@ -55,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     //проверим величину ставки
     if (isset($_POST['lot_id'])) {
-        $lot_id = $_POST['lot_id'];
+        $lot_id = intval($_POST['lot_id']);
         $min_rate = get_min_rate($yetiCave, $lot_id);
         if ($rate_info['cost'] < $min_rate) {
             $errors['cost'] = 'Ставка меньше ' . $min_rate;  
@@ -74,19 +76,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } else {
         $error = $yetiCave->error();
+        header("Location:_404.php?hdr=SQL error&msg=" . $error . " (1)");
     }
 
     if (!isset($errors['cost'])) {
-        //запишем данные ставку лота в базу
-        $sql = "INSERT INTO rates (dt_add, price, user_id, lot_id)"
-                . " VALUES (NOW(), ?, ?, ?)";
-        $stmt = $yetiCave->prepare_stmt($sql, [$rate_info['cost'], $user_id, $lot_id]);
-        $result = mysqli_stmt_execute($stmt);
+        //информация о лоте
+        $now = time();
+        $fin = $now;
+        $sql = "SELECT * FROM lots WHERE key_id = $lot_id";
+        $result = $yetiCave->query($sql);
         if ($result) {
-            $last_id = $yetiCave->last_id();
-            $rate_info['rate_id'] = $last_id;
+            $lot_row = mysqli_fetch_assoc($result);
+            //проверим время окончания торгов по ставке
+            $fin = strtotime($lot_row['dt_fin']);
         } else {
             $error = $yetiCave->error();
+            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (2)");
+        }
+        if ($fin > $now) {
+            //запишем данные ставку лота в базу
+            $sql = "INSERT INTO rates (dt_add, price, user_id, lot_id)"
+                    . " VALUES (NOW(), ?, ?, ?)";
+            $stmt = $yetiCave->prepare_stmt($sql, [$rate_info['cost'], $user_id, $lot_id]);
+            $result = mysqli_stmt_execute($stmt);
+            if ($result) {
+                $last_id = $yetiCave->last_id();
+                $rate_info['rate_id'] = $last_id;
+                $min_rate += $lot_row['rate_step'];
+            } else {
+                $error = $yetiCave->error();
+                header("Location:_404.php?hdr=SQL error&msg=" . $error . " (3)");
+            }
         }
     }
 } //$_POST
@@ -107,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $autor_id = $row['autor_id'];
     } else {
         $error = $yetiCave->error();
-        header("Location:_404.php?hdr=SQL error&msg=" . $error . " (1)");
+        header("Location:_404.php?hdr=SQL error&msg=" . $error . " (4)");
     }
     if (isset($_GET['uname'])) {
         $winner_name = htmlspecialchars($_GET['uname']);
@@ -121,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             }
         } else {
             $error = $yetiCave->error();
-            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (2)");
+            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (5)");
         }
     }
     $sql = "";
@@ -147,20 +167,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             }
         } else {
             $error = $yetiCave->error();
-            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (3)");
+            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (6)");
         }
 
         $min_rate = get_min_rate($yetiCave, $lot_id);
+        $rate_info['cost'] = $min_rate;
         //получим информацию о лоте
         $sql = "SELECT * FROM lots WHERE key_id = $lot_id";
         $result = $yetiCave->query($sql);
         if ($result) {
             $lot_row = mysqli_fetch_assoc($result);
-            if (mysqli_num_rows($result) > 0) {
-                $rate_info['cost'] = get_min_rate($yetiCave, $lot_row['key_id']);
-            }
         } else {
             $error = $yetiCave->error();
+            header("Location:_404.php?hdr=SQL error&msg=" . $error . " (7)");
         }
     } else {
         header("Location:_404.php");
@@ -178,26 +197,27 @@ $sql = "SELECT price, r.dt_add, name, r.user_id FROM rates r" .
        " WHERE r.lot_id = $lot_id" .
        " ORDER BY r.dt_add DESC";
 $result = $yetiCave->query($sql);
-if ($result) {
-    $history = mysqli_fetch_all($result, MYSQLI_ASSOC);
-    $now = time();
-    $fin = strtotime($lot_row['dt_fin']);
-    if ($now > $fin) {
-        //определим победителя
-        foreach ($history as $item) {
-            if (check_rate($yetiCave, $lot_row['key_id'], $item['price'])) {
-                $user_win = $item['user_id']; 
-                break;
+if ($result) { 
+    if (mysqli_num_rows($result) > 0) {
+        $history = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        $now = time();
+        $fin = strtotime($lot_row['dt_fin']);
+        if ($now > $fin) {
+            //определим победителя
+            foreach ($history as $item) {
+                if (check_rate($yetiCave, $lot_row['key_id'], $item['price'])) {
+                    $user_win = $item['user_id']; 
+                    break;
+                }
             }
-        }
-    } else {
-          //определим новую цену лота
-        if (mysqli_num_rows($result) > 0) {
+        } else {
+            //определим новую цену лота
             $lot_row['price'] = $history[0]['price'];
         }
     }
 } else {
     $error = $yetiCave->error();
+    header("Location:_404.php?hdr=SQL error&msg=" . $error . " (8)");
 }
 
 if (empty($error)) {
@@ -217,7 +237,7 @@ if (empty($error)) {
             'history' => $history
         ]);
 } else {
-        header("Location:_404.php?hdr=SQL error&msg=" . $error . " (4)");
+    header("Location:_404.php?hdr=SQL error&msg=" . $error . " (9)");
 }
 
 print($lot_content);

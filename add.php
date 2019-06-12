@@ -21,7 +21,7 @@ $dictionary = [
 ];
 
 //данные полей формы
-$lot_info[] = [
+$lot_info = [
     'category' => "",
     'message' => "",
     'lot-name' => "",
@@ -76,11 +76,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         //обезопасимся от XSS-уязвимости
         if ($field === 'lot-img') {
             //обработка графических данных
-            if (isset($_FILES['lot-img'])) {
-                if (empty($_FILES['lot-img']['name'])) {
+            if (isset($_FILES['lot_img'])) {
+                if (empty($_FILES['lot_img']['name'])) {
                     $errors['lot-img'] = 'Не выбран файл изображения';
                 } else {
-                    $lot_info[$field] = htmlspecialchars($_FILES['lot-img']['name']);
+                    $lot_info[$field] = htmlspecialchars($_FILES['lot_img']['name']);
                 }
             }
         } else {
@@ -89,8 +89,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     if (!isset($errors['lot-img'])) {
         $file_path = __DIR__ . '\\uploads\\';
-        $file_name = $_FILES['lot-img']['name'];
-        move_uploaded_file($_FILES['lot-img']['tmp_name'], $file_path . $file_name);
+        $file_name = $yetiCave->escape_str($_FILES['lot_img']['name']);
+        move_uploaded_file($_FILES['lot_img']['tmp_name'], $file_path . $file_name);
         //проверка на ожидаемый графический формат
         $type = "";
         $ext = "";
@@ -109,11 +109,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         //замена оригинального имени на случайное
         if ($type === 'image' && ($ext === 'jpg' || $ext === 'png' || $ext === 'jpeg')) {
-            $new_file_name = uniqid() . '.' . $ext;
+            $uniq_name = uniqid();
+            $new_file_name = $uniq_name . '.' . $ext;
             rename($file_path . $file_name, $file_path . $new_file_name);
             $lot_info['lot-img'] =  "uploads/" . $new_file_name;
+            //добавим в каталог 'маленький' файл с изображением
+            $small_fname = $uniq_name . '_small.' . $ext;
+            resize_img(50, 0, $file_path . $new_file_name, $file_path . $small_fname);
         } else {
-            $errors['lot-img'] = 'Укажите файл с графическими данными';
+            $errors['lot-img'] = 'Укажите файл с расширением jpg, jpeg или png';
         }
     } 
 

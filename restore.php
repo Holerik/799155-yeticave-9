@@ -1,5 +1,8 @@
 <?php
 require_once('dbinit.php');
+ini_set('session.cookie_lifetime', 3600);
+ini_set('session.gc_maxlifetime', 3600);  
+session_start();
 
 $email = "";
 
@@ -7,6 +10,7 @@ $errors = [];   //перечень ошибок для полей формы
 $user_name = "";
 $user_id = 0;
 $password = "";
+$is_auth = 0;
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     //Проверка полей на заполненность
@@ -16,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $email = "";
         } else {
             //обезопасимся от XSS-уязвимости
-            $email= htmlspecialchars($_POST['email']);
+            $email = htmlspecialchars($_POST['email']);
         }
     }
     if (!isset($_POST['password'])) {
@@ -79,8 +83,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $error = $yetiCave->error();
                 header("Location:_404.php?hdr=SQL error&msg=" . $error . " 3");
             }
-            header("Location:login.php");
-            //header("Location:_404.php?hdr=Password&msg=" . $password);
+            //header("Location:login.php");
+            header("Location:_404.php?hdr=Пароль восстановлен&msg=Перейдите на страницу авторизации");
         }
     } else {
         $restore_content = include_template('Restempl.php', [
@@ -89,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'password' => $password,
             'user_name' => $user_name,
             'user_id' => $user_id,
+            'is_auth' => $is_auth,
             'errors' => $errors
         ]);
         print($restore_content);
@@ -130,6 +135,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         'password' => $password,
         'user_name' => $user_name,
         'user_id' => $user_id,
+        'is_auth' => $is_auth,
         'errors' => $errors
     ]);
     print($restore_content);

@@ -6,7 +6,7 @@ USE YetiCave;
 CREATE TABLE categories (
 	key_id	INT AUTO_INCREMENT PRIMARY KEY,
 	name	CHAR(128) NOT NULL UNIQUE,
-	code	CHAR(16)
+	code	CHAR(16) NOT NULL UNIQUE
 );
 
 INSERT INTO categories

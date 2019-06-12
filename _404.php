@@ -7,6 +7,7 @@ session_start();
 $user_id = 0;
 $user_name = "";
 $is_auth = 0;
+$title = "Ошибка";
 
 if (isset($_SESSION['sess_id'])) {
     $user_id = $_SESSION['sess_id'];
@@ -22,6 +23,9 @@ $msg = "Данной страницы не существует на сайте.
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['hdr'])) {
         $hdr = htmlspecialchars($_GET['hdr']);
+        if (!strstr($hdr, "error")) {
+            $title = "Информация";
+        }
     }
     if (isset($_GET['msg'])) {
         $msg = htmlspecialchars($_GET['msg']);
@@ -34,6 +38,7 @@ $content = include_template('_404templ.php', [
                     'user_id' => $user_id,
                     'is_auth' => $is_auth,
                     'hdr' => $hdr,
-                    'msg' => $msg
+                    'msg' => $msg,
+                    'title' => $title
 ]);
 print($content);

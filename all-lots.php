@@ -76,7 +76,7 @@ if ($lots_count > 0) {
     " ORDER BY l.dt_add DESC" .
     " LIMIT $max_lots_per_page OFFSET $offset_page";
     $result = $yetiCave->query($sql);
-    if ($result) {
+    if ($result && mysqli_num_rows($result) > 0) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         foreach ($rows as $row) {
             $catsInfoArray[] = [

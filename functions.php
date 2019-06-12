@@ -75,20 +75,36 @@ function lot_time_info($dt_add, $dt_fin)
         $time_info['status'] = 0;
         return $time_info;
     }
-    $weeks = ($now - $add) / 604800 % 52; 
-    $days = ($now - $add) / 86400 % 7 + $weeks * 7;
-    $hour = ($now - $add) / 3600 % 24;
-    $min = ($now - $add) / 60 % 60;
-    if ($days > 2) {
+    $now_arr = date_parse(date("Y-m-d H:i", time()));
+    $add_arr = date_parse($dt_add);
+
+    $month = $now_arr['month'] - $add_arr['month'];
+    $days = $now_arr['day'] - $add_arr['day'];
+    $hour = $now_arr['hour'] - $add_arr['hour'];
+    $min = $now_arr['minute'] - $add_arr['minute'];
+
+    if ($month > 0 || $days > 1) {
         $time_info['info'] = date("d.m.Y в H:i", $add);	
-    } elseif ($days > 1) {
-        $time_info['info'] = date("вчера, в  H:i", $add);
-    } elseif ($hour > 2) {
-        $time_info['info'] = date("в H:i", $add);
+    } elseif ($days == 1) {
+        $time_info['info'] = date("вчера, в H:i", $add);
     } elseif ($hour > 1) {
+        $time_info['info'] = date("в H:i", $add);
+    } elseif ($hour == 1) {
         $time_info['info'] = date("час назад");
     } else {
-        $time_info['info'] = $min . " минут назад";
+        $time_info['info'] = $min;
+        $m = $min % 10;
+        if ($min > 5 && $min < 21) {
+            $time_info['info'] .= " минут назад";
+        } elseif ($m == 0) {
+            $time_info['info'] .= " минут назад";
+        } elseif ($m < 2) {
+            $time_info['info'] .= " минуту назад";
+        } elseif ($m < 5) {
+            $time_info['info'] .= " минуты назад";
+        } else {
+            $time_info['info'] .= " минут назад";
+        }
     }
     return $time_info;
 }
@@ -146,6 +162,9 @@ function lot_alt_descr($name)
  * @return integer Размер минимальной ставки
  */
 function get_min_rate($db, $lot_id, $flag = true) {
+    if (!$db->ok()) {
+        return 0;
+    }
     $min_rate = 0;
     $step = 0;
     $sql = "SELECT rate_step, price FROM lots WHERE key_id = $lot_id";
@@ -158,11 +177,13 @@ function get_min_rate($db, $lot_id, $flag = true) {
     $sql = "SELECT price FROM rates r WHERE r.lot_id = $lot_id" . 
     "  ORDER BY price DESC LIMIT 1";
     $result = $db->query($sql);
-    if ($result) {
+    if ($result && mysqli_num_rows($result) > 0) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         if ($min_rate < $rows[0]['price']) {
             $min_rate = $rows[0]['price'];
         }
+    } else {
+        $step = 0;
     }
     if ($flag) {
         return $min_rate + $step;
@@ -181,6 +202,9 @@ function get_min_rate($db, $lot_id, $flag = true) {
  */
 function check_rate($db, $lot_id, $bet)
 {
+    if (!$db->ok()) {
+        return false;
+    }
     $rate = get_min_rate($db, $lot_id, false);
     $result = $bet >= $rate;
     return $result;

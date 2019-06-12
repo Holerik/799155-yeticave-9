@@ -28,11 +28,11 @@ if (isset($_SESSION['sess_name'])) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if (isset($_GET['search'])) {
-        $to_search = $_GET['search'];
+        $to_search = $yetiCave->escape_str($_GET['search']);
         if (!(strpos($to_search, "Поиск лота") === false)) {
             $error = "Не задана поисковая последовательность";
         } else {
-            $safe_search = trim($yetiCave->escape_str($to_search));
+            $safe_search = trim($to_search);
         }
     }
 }
@@ -42,7 +42,7 @@ if (empty($error) && !empty($safe_search)) {
     //ищем в базе данные по запросу пользователя
     $sql = "SELECT COUNT(*) FROM lots l" .
     " JOIN categories c ON l.cat_id = c.key_id" .
-    " WHERE MATCH(l.name, descr) AGAINST('$safe_search' IN BOOLEAN MODE)";
+    " WHERE MATCH(l.name, descr) AGAINST('$safe_search' IN BOOLEAN MODE) AND l.dt_fin > NOW()";
     $result = $yetiCave->query($sql);
     if ($result) {
         $rows = mysqli_fetch_row($result);
@@ -54,12 +54,13 @@ if (empty($error) && !empty($safe_search)) {
        }    
     } else {
         $error = $yetiCave->error();
+        header("Location:_404php?hdr=Поиск&msg=" . $error);
     }
     if (empty($error)) {
         unset($catsInfoArray);
         $sql = "SELECT l.name, c.name as cat_name, cat_id, l.price, descr, img_url, l.key_id, l.dt_fin FROM lots l" .
             " JOIN categories c ON l.cat_id = c.key_id" .
-            " WHERE MATCH(l.name, descr) AGAINST('$safe_search' IN BOOLEAN MODE)" .
+            " WHERE MATCH(l.name, descr) AGAINST('$safe_search' IN BOOLEAN MODE)  AND l.dt_fin > NOW()" .
             " ORDER BY l.dt_add DESC" .
             " LIMIT $max_lots_per_page OFFSET $offset_page";
         $result = $yetiCave->query($sql);
@@ -89,6 +90,7 @@ if (empty($error) && !empty($safe_search)) {
             }
         } else {
             $error = $yetiCave->error();
+            header("Location:_404php?hdr=Поиск&msg=" . $error);
         }
     }
 }

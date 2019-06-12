@@ -1,11 +1,35 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Регистрация</title>
+<meta charset="UTF-8">
+<title>Регистрация</title>
   <link href="../css/normalize.min.css" rel="stylesheet">
   <link href="../css/style.css" rel="stylesheet">
   <link href="../css/custom.css" rel="stylesheet">
+  <style>
+  .form__item textarea {
+    min-height: 100px;
+    resize: none;
+  }  
+  .form__input-file .form__hidden {
+    display: none;
+  }
+  .form__input-file .form__item--info {
+    position: absolute;
+    left: 210px;
+    margin-left: 10px;
+    margin-top: -35px;
+    background-color: #dbe6e9;
+    font-size: 14px;
+    border: none;
+  }
+  </style>
+  <script language="JavaScript">
+    function set_info() {
+      document.sign_up.info_path.value = "Файл аватара выбран";
+      document.sign_up.info_path.className = "form__item--info";
+    }
+  </script>
 </head>
 <body>
 
@@ -45,13 +69,13 @@
         <?php endforeach; ?>
       </ul>
     </nav>
-    <form class="form container <?=modify_when_error($errors, "", 'form--invalid');?>" action="sign-up.php" method="post" autocomplete="off"> <!-- form--invalid -->
+    <form class="form container <?=modify_when_error($errors, "", 'form--invalid');?>" action="sign-up.php" method="post" autocomplete="off" name="sign_up" enctype="multipart/form-data"> <!-- form--invalid -->
       <h2>Регистрация нового аккаунта</h2>
       <div class="form__item <?=modify_when_error($errors, 'email', 'form__item--invalid');?>"> <!-- form__item--invalid -->
         <label for="email">E-mail <sup>*</sup></label>
         <input id="email" type="text" name="email" placeholder="Введите e-mail" value="<?=$userInfo['email']?>">
-        <?php if (!isset($errors['email'])):?>
-          <span class="form__item">Введите e-mail</span>
+        <?php if (!isset($errors['email'])) :?>
+          <!--<span class="form__item">Введите e-mail</span>-->
         <?php else:?>
           <span class="form__error"><?=$errors['email'];?></span>
         <?php endif; ?>
@@ -59,8 +83,8 @@
       <div class="form__item <?=modify_when_error($errors, 'password', 'form__item--invalid');?>">
         <label for="password">Пароль <sup>*</sup></label>
         <input id="password" type="password" name="password" placeholder="Введите пароль" value="<?=$userInfo['password']?>">
-        <?php if (!isset($errors['password'])):?>
-          <span class="form__item">Введите пароль</span>
+        <?php if (!isset($errors['password'])) :?>
+          <!--<span class="form__item">Введите пароль</span>-->
         <?php else:?>
           <span class="form__error"><?=$errors['password'];?></span>
         <?php endif; ?>
@@ -68,8 +92,8 @@
       <div class="form__item <?=modify_when_error($errors, 'name', 'form__item--invalid');?>">
         <label for="name">Имя <sup>*</sup></label>
         <input id="name" type="text" name="name" placeholder="Введите имя" value="<?=$userInfo['name']?>">
-        <?php if (!isset($errors['name'])):?>
-          <span class="form__item">Введите имя</span>
+        <?php if (!isset($errors['name'])) :?>
+          <!--<span class="form__item">Введите имя</span>-->
         <?php else:?>
           <span class="form__error"><?=$errors['name'];?></span>
         <?php endif; ?>
@@ -77,12 +101,30 @@
       <div class="form__item <?=modify_when_error($errors, 'message', 'form__item--invalid');?>">
         <label for="message">Контактные данные <sup>*</sup></label>
         <textarea id="message" name="message" placeholder="Напишите как с вами связаться"><?=$userInfo['message'];?></textarea>
-        <?php if (!isset($errors['message'])):?>
-          <span class="form__item">Напишите, как с вами связаться</span>
+        <?php if (!isset($errors['message'])) :?>
+          <!--<span class="form__item">Напишите, как с вами связаться</span>-->
         <?php else:?>
           <span class="form__error"><?=$errors['message'];?></span>
         <?php endif; ?>
       </div>
+<!---------------------------------------------------------------------------->
+      <div class="form__item form__item--file">
+        <label>Аватар</label>
+        <div class="form__input-file">
+          <input class="visually-hidden" type="file" name="avatar" id="avatar_id" value="" onChange="set_info()">
+          <label for="avatar_id">
+            Выбрать
+          </label>
+          <?php if (isset($errors['avatar'])) :?>
+            <span class="form__error"><?=$errors['avatar'];?></span>
+          <?php elseif (!empty($userInfo['avatar'])) :?>  
+            <span class="form__item--info">Файл аватара выбран</span>
+          <?php else: ?>
+            <input type="text" class="form__hidden form__item--info" name="info_path" value="">
+          <?php endif; ?>
+        </div>
+      </div>
+<!----------------------------------------------------------------------------->
       <button type="submit" class="button">Зарегистрироваться</button>
       <a class="text-link" href="login.php">Уже есть аккаунт</a>
     </form>

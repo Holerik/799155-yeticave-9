@@ -8,6 +8,8 @@ $user_info = [];
 $user_info['key_id'] = 0;
 $user_info['email'] = "";
 $user_info['name'] = "";
+$user_info['password'] = "";
+$user_info['avatar'] = "";
 
 $errors = [];   //перечень ошибок для полей формы
 
@@ -40,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         //ищем в базе id пользователя по email
         $safe_email = $yetiCave->escape_str($user_info['email']);
         $passwordHash = "";
-        $sql = "SELECT key_id, email, u.password, u.name FROM users u WHERE email = '$safe_email'";
+        $sql = "SELECT key_id, email, u.password, u.name, avatar_path FROM users u WHERE email = '$safe_email'";
         $result = $yetiCave->query($sql);
         if ($result) {
             if (mysqli_num_rows($result) > 0) {
@@ -48,6 +50,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $user_id = $rows[0]['key_id'];
                 $passwordHash = $rows[0]['password'];
                 $user_info['name'] = $rows[0]['name'];
+                if (isset($rows[0]['avatar_path'])) {
+                    $user_info['avatar'] = $rows[0]['avatar_path'];
+                } else {
+                    $user_info['avatar'] = "";
+                    if (isset($_SESSION['avatar'])) {
+                        $_SESSION['avatar'] = "";
+                    }
+                }
             }
         } else {
             $error = $yetiCave->error();
@@ -85,7 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
         //открываем сессию для пользователя
         $_SESSION['sess_id'] = $user_id;
-        $_SESSION['sess_name'] = $user_info['name'];           
+        $_SESSION['sess_name'] = $user_info['name'];   
+        if (!empty($user_info['avatar'])) {
+            $_SESSION['avatar'] = $user_info['avatar'];
+        }       
         //переходим на главную страницу
         header("Location:index.php");
     }

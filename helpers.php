@@ -260,3 +260,46 @@ class MySqliBase
         return $str;
     }
 }
+
+/**
+ * Меняет размеры исходного изображения и сохраняет его с новым именем
+ * 
+ * @param int    $cx             Размер нового изображения
+ * @param int    $cy             Размер нового изображения
+ * @param string $orig_img_path  Путь к исходному изображению
+ * @param string $small_img_path Путь для сохранения измененного изображения
+ * 
+ * @return bool  true            В случае успеха
+ *               false           В случае неуспеха
+ */
+function resize_img($cx, $cy, $orig_img_path, $resize_img_path) {
+    if (!file_exists($orig_img_path)) {
+        return false;
+    }
+    $imagine = new Imagine\Gd\Imagine();
+    $img = $imagine->open($orig_img_path);
+    if (!$img) {
+        return false;
+    }
+    if (file_exists($resize_img_path)) {
+        unlink($resize_img_path);
+    }
+    if ($cx > 0 && $cy > 0) {
+        $new_box = new Imagine\Image\Box($cx, $cy);
+        $img->resize($new_box);
+        $img->save($resize_img_path);
+        return true;
+    }
+    $old_box = $img->getSize();
+    $old_cx = $old_box->getWidth();
+    $old_cy = $old_box->getHeight();
+    if ($cx > 0) {
+        $cy = $old_cy * $cx / $old_cx;
+    } else {
+        $cx = $old_cx * $cy / $old_cy;
+    }
+    $new_box = new Imagine\Image\Box($cx, $cy);
+    $img->resize($new_box);
+    $img->save($resize_img_path);
+    return true;
+}

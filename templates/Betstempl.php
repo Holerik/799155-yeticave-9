@@ -57,8 +57,8 @@
                 <?=$bets['lot_name'];?>
               </a>
             </h3>
-            <?php if ($time_info['status'] == 0): ?>
-                <?php if ($bets['status']): ?>
+            <?php if ($time_info['status'] == 0) : ?>
+                <?php if ($bets['status']) : ?>
                   <p><?=$bets['user_info'];?></p>
                 <?php endif; ?>
             <?php endif; ?>
@@ -68,15 +68,15 @@
             <?=category_name($catsInfo, $bets['cat_id']);?>
           </td>
           <td class="rates__timer">
-            <?php if ($time_info['status'] == 0): ?>
-               <?php if($bets['status'] && $bets['fin']): ?>
+            <?php if ($time_info['status'] == 0) : ?>
+               <?php if($bets['status'] && $bets['fin']) : ?>
                 <div class="timer timer--win">Ставка выиграла</div>
-               <?php else: ?>				
+               <?php else : ?>
                 <div class="timer timer--end">Торги окончены</div>
                <?php endif; ?>
             <?php else: ?>
             <?php $time = remained_time($bets['dt_fin']); ?>
-            <div class="timer <?php if ($time[0] <= 1):?>timer--finishing<?php endif; ?>">
+            <div class="timer <?php if ($time[0] <= 1) : ?>timer--finishing<?php endif; ?>">
                 <?php echo($time[0] . ":" . $time[1]); ?>
             </div>
             <?php endif; ?>

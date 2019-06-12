@@ -20,6 +20,11 @@ if (isset($_SESSION['sess_name'])) {
     $is_auth = 1;
 }
 
+$avatar = "";
+if (isset($_SESSION['avatar'])) {
+    $avatar = $_SESSION['avatar'];
+}
+
 $catsInfoArray = [];
 
 if (empty($error)) {
@@ -46,7 +51,7 @@ if ($lots_count > 0) {
     " ORDER BY l.dt_add DESC" .
     " LIMIT $max_lots_per_page OFFSET $offset_page";
     $result = $yetiCave->query($sql);
-    if ($result) {
+    if ($result && mysqli_num_rows($result) > 0) {
         $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
         foreach ($rows as $row) {
             $catsInfoArray[] = [
@@ -70,6 +75,7 @@ if (empty($error)) {
         'title' => $pageName,
         'user_id' => $user_id,
         'user_name' => $user_name,
+        'avatar' => $avatar,
         'is_auth' => $is_auth
     ]);
     
@@ -90,7 +96,8 @@ if (empty($error)) {
     $layout_content = include_template('Layout.php', [
         'header' => $header_content,
         'content' => $main_content,
-        'footer' => $footer_content
+        'footer' => $footer_content,
+        'title' => $pageName
     ]);
     
     print($layout_content);

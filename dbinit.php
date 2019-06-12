@@ -2,6 +2,7 @@
 $error = "";
 $host = 'localhost';
 
+require_once('vendor/autoload.php');
 require_once('helpers.php');
 
 //Соединяемся с БД
